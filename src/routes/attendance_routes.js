@@ -9,13 +9,6 @@ import authMiddleware from '../middleware/auth_middleware.js';
 const router = express.Router();
 
 /**
- * @route POST /api/attendances
- * @desc Record a new attendance
- * @access Private
- */
-router.post('/', authMiddleware, attendanceController.recordAttendance);
-
-/**
  * @route POST /api/attendances/checkIn
  * @desc Check in attendance
  * @access Private
@@ -28,28 +21,6 @@ router.post('/checkIn', authMiddleware, attendanceController.checkIn);
  * @access Private
  */
 router.post('/checkOut', authMiddleware, attendanceController.checkOut);
-
-/**
- * @route GET /api/attendances/:attendanceId
- * @desc Get attendance by ID
- * @access Private
- */
-router.get('/:attendanceId', authMiddleware, attendanceController.getAttendanceById);
-
-/**
- * @route PUT /api/attendances/:attendanceId
- * @desc Update attendance record
- * @access Private
- */
-router.put('/:attendanceId', authMiddleware, attendanceController.updateAttendance);
-
-/**
- * @route DELETE /api/attendances/:attendanceId
- * @desc Delete attendance record
- * @access Private
- */
-router.delete('/:attendanceId', authMiddleware, attendanceController.deleteAttendance);
-
 
 /**
  * @route GET /api/attendances/dashboard
@@ -99,5 +70,33 @@ router.get('/date', authMiddleware, attendanceController.getAttendancesByDate);
  * @access Private
  */
 router.get('/date-range', authMiddleware, attendanceController.getAttendancesByDateRange);
+
+/**
+ * @route POST /api/attendances
+ * @desc Record a new attendance
+ * @access Private
+ */
+router.post('/', authMiddleware, attendanceController.recordAttendance);
+
+/**
+ * @route GET /api/attendances/:attendanceId
+ * @desc Get attendance by ID
+ * @access Private
+ */
+router.get('/:attendanceId', authMiddleware, attendanceController.getAttendanceById);
+
+/**
+ * @route PUT /api/attendances/:attendanceId
+ * @desc Update attendance record
+ * @access Private
+ */
+router.put('/:attendanceId', authMiddleware, attendanceController.updateAttendance);
+
+/**
+ * @route DELETE /api/attendances/:attendanceId
+ * @desc Delete attendance record
+ * @access Private
+ */
+router.delete('/:attendanceId', authMiddleware, attendanceController.deleteAttendance);
 
 export default router;
