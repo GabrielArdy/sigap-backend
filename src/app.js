@@ -22,14 +22,6 @@ const __dirname = path.dirname(__filename);
 // Initialize Express app
 const app = express();
 
-// CORS configuration
-const corsOptions = {
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  credentials: true,
-  maxAge: 86400 // 24 hours
-};
 
 // Set up morgan logging based on environment
 const environment = process.env.NODE_ENV || 'development';
@@ -56,7 +48,7 @@ if (environment === 'production') {
 // Set middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors(corsOptions));
+app.use(cors('*'));
 app.use(helmet());
 
 // Connect to MongoDB
