@@ -43,6 +43,8 @@ const attendanceSchema = new Schema({
         type: Date,
         default: Date.now,
     }
+}, {
+    collection: 'sigap_attendances'
 });
 
 const Attendance = mongoose.model('Attendance', attendanceSchema);

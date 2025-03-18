@@ -34,6 +34,8 @@ const userAuthSchema = new Schema({
         type: Date,
         default: Date.now,
     }
+}, {
+    collection: 'sigap_authdata'
 });
 
 const UserAuth = mongoose.model('UserAuth', userAuthSchema);

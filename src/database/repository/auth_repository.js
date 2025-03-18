@@ -5,6 +5,11 @@ import UserAuth from '../models/user_auth.js';
  * Provides operations for user authentication data management
  */
 class AuthRepository {
+
+  constructor() {
+    this.collection = UserAuth;
+    console.log('Auth repository initialized with collection:', this.collection.collection.name);
+  }
   /**
    * Create a new user authentication record
    * @param {Object} authData - User authentication data

@@ -29,6 +29,8 @@ const attendancePeriodSchema = new Schema({
         type: Date,
         default: Date.now,
     }
+}, {
+    collection: 'sigap_attendance_periods'
 });
 
 const AttendancePeriod = mongoose.model('AttendancePeriod', attendancePeriodSchema);

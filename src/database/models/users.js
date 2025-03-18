@@ -36,8 +36,10 @@ const userSchema = new Schema({
     updatedAt: {
         type: Date,
         default: Date.now,
-    }
-})
+    } 
+}, {
+    collection: 'sigap_users'
+});
 
 const User = mongoose.model('User', userSchema);
 export default User;

@@ -6,13 +6,21 @@ import User from '../models/users.js';
  */
 class UserRepository {
   /**
+   * Constructor to initialize User collection
+   */
+  constructor() {
+    this.collection = User;
+    console.log('User repository initialized with collection:', this.collection.collection.name);
+  }
+
+  /**
    * Create a new user
    * @param {Object} userData - User data to create
    * @returns {Promise<Object>} Created user
    */
   async createUser(userData) {
     try {
-      const user = new User(userData);
+      const user = new this.collection(userData);
       return await user.save();
     } catch (error) {
       console.error('Error creating user:', error.message);
@@ -27,7 +35,7 @@ class UserRepository {
    */
   async findById(userId) {
     try {
-      return await User.findOne({ userId });
+      return await this.collection.findOne({ userId });
     } catch (error) {
       console.error('Error finding user by ID:', error.message);
       throw error;
@@ -41,7 +49,7 @@ class UserRepository {
    */
   async findByNip(nip) {
     try {
-      return await User.findOne({ nip });
+      return await this.collection.findOne({ nip });
     } catch (error) {
       console.error('Error finding user by NIP:', error.message);
       throw error;
@@ -58,7 +66,7 @@ class UserRepository {
     try {
       const { limit = 10, skip = 0, sort = { createdAt: -1 } } = options;
       
-      return await User.find(filter)
+      return await this.collection.find(filter)
         .sort(sort)
         .skip(skip)
         .limit(limit);
@@ -79,7 +87,7 @@ class UserRepository {
       // Add updated timestamp
       updateData.updatedAt = Date.now();
       
-      return await User.findOneAndUpdate(
+      return await this.collection.findOneAndUpdate(
         { userId },
         updateData,
         { new: true, runValidators: true }
@@ -97,7 +105,7 @@ class UserRepository {
    */
   async deleteUser(userId) {
     try {
-      return await User.findOneAndDelete({ userId });
+      return await this.collection.findOneAndDelete({ userId });
     } catch (error) {
       console.error('Error deleting user:', error.message);
       throw error;
@@ -111,7 +119,7 @@ class UserRepository {
    */
   async countUsers(filter = {}) {
     try {
-      return await User.countDocuments(filter);
+      return await this.collection.countDocuments(filter);
     } catch (error) {
       console.error('Error counting users:', error.message);
       throw error;

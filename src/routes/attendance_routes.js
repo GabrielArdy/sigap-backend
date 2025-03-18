@@ -24,21 +24,28 @@ router.get('/:attendanceId', authMiddleware, attendanceController.getAttendanceB
 
 /**
  * @route PUT /api/attendances/:attendanceId
- * @desc Update an attendance record
+ * @desc Update attendance record
  * @access Private
  */
 router.put('/:attendanceId', authMiddleware, attendanceController.updateAttendance);
 
 /**
  * @route DELETE /api/attendances/:attendanceId
- * @desc Delete an attendance record
+ * @desc Delete attendance record
  * @access Private
  */
 router.delete('/:attendanceId', authMiddleware, attendanceController.deleteAttendance);
 
 /**
- * @route GET /api/attendances/my
- * @desc Get logged-in user's attendances
+ * @route GET /api/attendances/statistics
+ * @desc Get attendance statistics
+ * @access Private
+ */
+router.get('/statistics', authMiddleware, attendanceController.getAttendanceStatistics);
+
+/**
+ * @route GET /api/attendances/my/records
+ * @desc Get current user's attendance records
  * @access Private
  */
 router.get('/my/records', authMiddleware, attendanceController.getMyAttendances);
@@ -58,13 +65,6 @@ router.get('/users/:userId', authMiddleware, attendanceController.getUserAttenda
 router.get('/periods/:periodId', authMiddleware, attendanceController.getAttendancesByPeriod);
 
 /**
- * @route GET /api/attendances/date-range
- * @desc Get attendances for a date range
- * @access Private
- */
-router.get('/date-range', authMiddleware, attendanceController.getAttendancesByDateRange);
-
-/**
  * @route GET /api/attendances/date
  * @desc Get attendances for a specific date
  * @access Private
@@ -72,13 +72,10 @@ router.get('/date-range', authMiddleware, attendanceController.getAttendancesByD
 router.get('/date', authMiddleware, attendanceController.getAttendancesByDate);
 
 /**
- * @route GET /api/attendances/statistics
- * @desc Get attendance statistics
+ * @route GET /api/attendances/date-range
+ * @desc Get attendances for a date range
  * @access Private
  */
-router.get('/statistics', authMiddleware, attendanceController.getAttendanceStatistics);
+router.get('/date-range', authMiddleware, attendanceController.getAttendancesByDateRange);
 
 export default router;
-
-// Note: This router should be mounted at '/api/attendances' in your main app.js file
-// Example: app.use('/api/attendances', attendanceRoutes);
