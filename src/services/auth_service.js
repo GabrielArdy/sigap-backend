@@ -46,6 +46,7 @@ class AuthService {
       const authToCreate = {
         email: authData.email,
         password: hashedPassword,
+        role: authData.role || 'user',
         userId
       };
       await authRepository.createAuth(authToCreate);
