@@ -441,7 +441,7 @@ class AttendanceController {
   async getMyDashboard(req, res) {
     try {
       // This assumes an authentication middleware sets req.user
-      const userId = req.query.id ;
+      const userId = req.query.id;
       
       // Always use today's date
       const dashboardData = await attendanceService.getIndividualDashboardData(
