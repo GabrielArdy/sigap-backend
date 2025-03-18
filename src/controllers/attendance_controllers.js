@@ -395,6 +395,74 @@ class AttendanceController {
       });
     }
   }
+
+  /**
+   * Get individual dashboard data
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async getIndividualDashboard(req, res) {
+    try {
+      const { userId } = req.params;
+      
+      // Always use today's date
+      const dashboardData = await attendanceService.getIndividualDashboardData(
+        userId,
+        new Date()
+      );
+      
+      return res.status(200).json({
+        success: true,
+        data: dashboardData
+      });
+    } catch (error) {
+      console.error('Get individual dashboard error:', error);
+      
+      if (error.message === 'User not found') {
+        return res.status(404).json({
+          success: false,
+          message: error.message
+        });
+      }
+      
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to get dashboard data',
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Get my individual dashboard data (for logged-in user)
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async getMyDashboard(req, res) {
+    try {
+      // This assumes an authentication middleware sets req.user
+      const userId = req.query.id ;
+      
+      // Always use today's date
+      const dashboardData = await attendanceService.getIndividualDashboardData(
+        userId,
+        new Date()
+      );
+      
+      return res.status(200).json({
+        success: true,
+        data: dashboardData
+      });
+    } catch (error) {
+      console.error('Get my dashboard error:', error);
+      
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to get your dashboard data',
+        error: error.message
+      });
+    }
+  }
 }
 
 export default new AttendanceController();

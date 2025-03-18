@@ -255,6 +255,51 @@ class AttendanceService {
   }
 
   /**
+   * Get individual user dashboard data
+   * @param {String} userId - User ID
+   * @param {Date|String} date - The date to get attendance data for (defaults to current date)
+   * @returns {Promise<Object>} User and attendance data for dashboard
+   */
+  async getIndividualDashboardData(userId, date = new Date()) {
+    try {
+      // Validate user exists and get user data
+      const user = await userRepository.findById(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      // Convert string date to Date object if needed
+      const targetDate = typeof date === 'string' ? new Date(date) : date;
+      
+      // Get attendance for the user on the specified date
+      const attendanceRecords = await attendanceRepository.findByDateAndUserId(
+        targetDate, 
+        userId, 
+        {}, 
+        { limit: 1 }
+      );
+      
+      // Format the response
+      const dashboardData = {
+        user: {
+          firstName: user.firstName || '',
+          lastName: user.lastName || '',
+          nip: user.nip || ''
+        },
+        attendanceData: {
+          checkIn: attendanceRecords.length > 0 ? attendanceRecords[0].checkIn : null,
+          checkOut: attendanceRecords.length > 0 ? attendanceRecords[0].checkOut : null
+        }
+      };
+      
+      return dashboardData;
+    } catch (error) {
+      console.error('Error getting individual dashboard data:', error.message);
+      throw error;
+    }
+  }
+
+  /**
    * Get attendance statistics
    * @param {Object} filters - Filter criteria
    * @returns {Promise<Object>} Attendance statistics

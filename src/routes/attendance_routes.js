@@ -36,6 +36,14 @@ router.put('/:attendanceId', authMiddleware, attendanceController.updateAttendan
  */
 router.delete('/:attendanceId', authMiddleware, attendanceController.deleteAttendance);
 
+
+/**
+ * @route GET /api/attendances/dashboard
+ * @desc Get current user's attendance dashboard
+ * @access Private
+ */
+router.get('/dashboard', authMiddleware, attendanceController.getMyDashboard);
+
 /**
  * @route GET /api/attendances/statistics
  * @desc Get attendance statistics

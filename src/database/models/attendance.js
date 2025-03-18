@@ -30,11 +30,6 @@ const attendanceSchema = new Schema({
         required: true,
         trim: true,
     },
-    attendancePeriodId: {
-        type: String,
-        required: true,
-        trim: true,
-    },
     createdAt: {
         type: Date,
         default: Date.now,
