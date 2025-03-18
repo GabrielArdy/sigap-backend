@@ -33,6 +33,13 @@ connect(MONGODB_URI)
     process.exit(1);
   });
 
+app.get('/', (req, res) => {
+    res.status(200).json({
+        message: 'Welcome to SIGAP API',
+        timestamp: new Date()
+    });
+});
+
 // API health check route
 app.get('/api/health', (req, res) => {
   res.status(200).json({
