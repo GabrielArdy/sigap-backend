@@ -18,6 +18,11 @@ const userAuthSchema = new Schema({
         trim: true,
         unique: true,
     },
+    role: {
+        type: String,
+        required: true,
+        trim: true,
+    },
     token: {
         type: String,
         required: false,
