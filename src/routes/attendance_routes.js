@@ -16,6 +16,20 @@ const router = express.Router();
 router.post('/', authMiddleware, attendanceController.recordAttendance);
 
 /**
+ * @route POST /api/attendances/checkIn
+ * @desc Check in attendance
+ * @access Private
+ */
+router.post('/checkIn', authMiddleware, attendanceController.checkIn);
+
+/**
+ * @route POST /api/attendances/checkOut
+ * @desc Check out attendance
+ * @access Private
+ */
+router.post('/checkOut', authMiddleware, attendanceController.checkOut);
+
+/**
  * @route GET /api/attendances/:attendanceId
  * @desc Get attendance by ID
  * @access Private

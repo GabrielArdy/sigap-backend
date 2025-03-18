@@ -30,6 +30,14 @@ class AttendanceService {
         attendanceData.date = new Date();
       }
 
+      if (!attendanceData.checkIn) {
+        attendanceData.checkIn = new Date().setHours(0, 0, 0, 0);
+      }
+
+      if (!attendanceData.checkOut) {
+        attendanceData.checkOut = new Date().setHours(0, 0, 0, 0);
+      }
+
       // Create attendance record
       const attendance = await attendanceRepository.createAttendance(attendanceData);
       return attendance;
@@ -317,6 +325,101 @@ class AttendanceService {
       };
     } catch (error) {
       console.error('Error getting attendance statistics:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Record check-in time for a user's attendance
+   * @param {String} userId - User ID
+   * @param {Date} checkInTime - Check-in time (defaults to current time)
+   * @returns {Promise<Object>} Updated attendance record
+   */
+  async recordCheckIn(userId, checkInTime = new Date()) {
+    try {
+      // Validate user exists
+      const user = await userRepository.findById(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+      
+      // Get today's date with time set to midnight (00:00:00.000)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // Find today's attendance record for the user
+      const attendanceRecords = await attendanceRepository.findByDateAndUserId(
+        today, 
+        userId, 
+        {}, 
+        { limit: 1 }
+      );
+      
+      // If no attendance record exists for today, throw an error
+      if (attendanceRecords.length === 0) {
+        throw new Error('No attendance record found for today');
+      }
+      
+      const attendanceId = attendanceRecords[0].attendanceId;
+      
+      // Update the check-in time
+      const updatedAttendance = await this.updateAttendance(attendanceId, {
+        checkIn: checkInTime,
+        // Update status to present on check-in
+      });
+      
+      return updatedAttendance;
+    } catch (error) {
+      console.error('Error recording check-in:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Record check-out time for a user's attendance
+   * @param {String} userId - User ID
+   * @param {Date} checkOutTime - Check-out time (defaults to current time)
+   * @returns {Promise<Object>} Updated attendance record
+   */
+  async recordCheckOut(userId, checkOutTime = new Date()) {
+    try {
+      // Validate user exists
+      const user = await userRepository.findById(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+      
+      // Get today's date with time set to midnight (00:00:00.000)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // Find today's attendance record for the user
+      const attendanceRecords = await attendanceRepository.findByDateAndUserId(
+        today, 
+        userId, 
+        {}, 
+        { limit: 1 }
+      );
+      
+      // If no attendance record exists for today, throw an error
+      if (attendanceRecords.length === 0) {
+        throw new Error('No attendance record found for today');
+      }
+      
+      const attendanceId = attendanceRecords[0].attendanceId;
+      
+      // Update the check-out time
+      const updatedAttendance = await this.updateAttendance(attendanceId, {
+        checkOut: checkOutTime,
+        status: 'present' 
+        // If we want to calculate work hours, we could do that here
+        // For example:
+        // workHours: (checkOutTime - attendanceRecords[0].checkIn) / (1000 * 60 * 60) // hours
+      });
+      
+      return updatedAttendance;
+    } catch (error) {
+      console.error('Error recording check-out:', error.message);
       throw error;
     }
   }

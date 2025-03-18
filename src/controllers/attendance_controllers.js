@@ -463,6 +463,116 @@ class AttendanceController {
       });
     }
   }
+
+  /**
+   * Record user check-in
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async checkIn(req, res) {
+    try {
+      // Get userId either from authentication or request body
+      let userId;
+      if (req.user) {
+        userId = req.user.userId;
+      } else if (req.body.userId) {
+        userId = req.body.userId;
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'User ID is required'
+        });
+      }
+      
+      // Get optional check-in time from request or use current time
+      const checkInTime = req.body.checkInTime ? new Date(req.body.checkInTime) : new Date();
+      
+      const updatedAttendance = await attendanceService.recordCheckIn(userId, checkInTime);
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Check-in recorded successfully',
+        data: updatedAttendance
+      });
+    } catch (error) {
+      console.error('Check-in error:', error);
+      
+      if (error.message === 'User not found') {
+        return res.status(404).json({
+          success: false,
+          message: error.message
+        });
+      }
+      
+      if (error.message === 'No attendance record found for today') {
+        return res.status(404).json({
+          success: false,
+          message: error.message
+        });
+      }
+      
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to record check-in',
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Record user check-out
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async checkOut(req, res) {
+    try {
+      // Get userId either from authentication or request body
+      let userId;
+      if (req.user) {
+        userId = req.user.userId;
+      } else if (req.body.userId) {
+        userId = req.body.userId;
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'User ID is required'
+        });
+      }
+      
+      // Get optional check-out time from request or use current time
+      const checkOutTime = req.body.checkOutTime ? new Date(req.body.checkOutTime) : new Date();
+      
+      const updatedAttendance = await attendanceService.recordCheckOut(userId, checkOutTime);
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Check-out recorded successfully',
+        data: updatedAttendance
+      });
+    } catch (error) {
+      console.error('Check-out error:', error);
+      
+      if (error.message === 'User not found') {
+        return res.status(404).json({
+          success: false,
+          message: error.message
+        });
+      }
+      
+      if (error.message === 'No attendance record found for today') {
+        return res.status(404).json({
+          success: false,
+          message: error.message
+        });
+      }
+      
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to record check-out',
+        error: error.message
+      });
+    }
+  }
 }
 
 export default new AttendanceController();
