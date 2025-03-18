@@ -4,9 +4,6 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { connect } from './config/mongodb.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
 // Import routes
 import authRoutes from './routes/auth_routes.js';
@@ -15,40 +12,14 @@ import attendanceRoutes from './routes/attendance_routes.js';
 // Load environment variables
 dotenv.config();
 
-// Get directory name (ES module equivalent of __dirname)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 // Initialize Express app
 const app = express();
-
-
-// Set up morgan logging based on environment
-const environment = process.env.NODE_ENV || 'development';
-if (environment === 'production') {
-  // Create logs directory if it doesn't exist
-  const logsDir = path.join(__dirname, '../logs');
-  if (!fs.existsSync(logsDir)) {
-    fs.mkdirSync(logsDir, { recursive: true });
-  }
-  
-  // Create a write stream for logs
-  const accessLogStream = fs.createWriteStream(
-    path.join(logsDir, 'access.log'),
-    { flags: 'a' }
-  );
-  
-  // Use combined format for production and write to log file
-  app.use(morgan('combined', { stream: accessLogStream }));
-} else {
-  // Use dev format for non-production environments
-  app.use(morgan('dev'));
-}
 
 // Set middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors('*'));
+app.use(morgan('dev'));
 app.use(helmet());
 
 // Connect to MongoDB
@@ -89,7 +60,7 @@ app.use((req, res, next) => {
   next(error);
 });
 
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   const statusCode = err.status || 500;
   res.status(statusCode).json({
     success: false,
