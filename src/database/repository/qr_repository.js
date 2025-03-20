@@ -1,4 +1,4 @@
-import { QRModel } from '../models/qr_model.js';
+import QRModel from '../models/qr.js';
 
 class QRRepository {
   async createQR(qrData) {
