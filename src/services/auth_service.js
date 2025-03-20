@@ -47,7 +47,8 @@ class AuthService {
         email: authData.email,
         password: hashedPassword,
         role: authData.role || 'user',
-        userId
+        userId,
+        isAdmin: authData.role === 'admin' ? true : false
       };
       await authRepository.createAuth(authToCreate);
 

@@ -20,11 +20,15 @@ const userAuthSchema = new Schema({
     },
     role: {
         type: String,
-        required: true,
+        required: false,
         trim: true,
     },
     token: {
         type: String,
+        required: false,
+    },
+    isAdmin: {
+        type: Boolean,
         required: false,
     },
     token_expired: {

@@ -540,7 +540,7 @@ class AttendanceController {
       }
       
       // Get optional check-out time from request or use current time
-      const checkOutTime = req.body.checkOutTime ? new Date(req.body.checkOutTime) : new Date();
+      const checkOutTime = req.body.checkOut ? new Date(req.body.checkOut) : new Date();
       
       const updatedAttendance = await attendanceService.recordCheckOut(userId, checkOutTime);
       
