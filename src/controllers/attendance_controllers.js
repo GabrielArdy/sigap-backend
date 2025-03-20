@@ -1,10 +1,19 @@
 import attendanceService from '../services/attendance_service.js';
+import { QRService } from '../services/qr_service.js';
+import StationService from '../services/station_service.js';
+import calculateDistanceInMeters from '../utils/location.js';
 
 /**
  * Attendance Controllers
  * Handles HTTP requests related to attendance management
  */
 class AttendanceController {
+  constructor() {
+    this.qrService = new QRService();
+    this.stationService = new StationService();
+    // Removing the hardcoded MAX_ALLOWED_DISTANCE as we'll use station-specific radius
+  }
+
   /**
    * Record a new attendance
    * @param {Object} req - Express request object
@@ -487,22 +496,82 @@ class AttendanceController {
    */
   async checkIn(req, res) {
     try {
-      // Get userId either from authentication or request body
-      let userId;
-      if (req.user) {
-        userId = req.user.userId;
-      } else if (req.body.userId) {
-        userId = req.body.userId;
-      } else {
+      // Extract check-in data from request body
+      const { 
+        userId, 
+        scannedAt, 
+        location, 
+        qrData 
+      } = req.body;
+      
+      // Validate required fields
+      if (!userId || !scannedAt || !location || !qrData) {
         return res.status(400).json({
           success: false,
-          message: 'User ID is required'
+          message: 'Missing required fields: userId, scannedAt, location, or qrData'
         });
       }
-      
-      // Get optional check-in time from request or use current time
-      const checkInTime = req.body.checkInTime ? new Date(req.body.checkInTime) : new Date();
-      
+
+      // Ensure location data is valid
+      if (!location.latitude || !location.longitude) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid location data: latitude and longitude are required'
+        });
+      }
+
+      // Ensure QR data is valid
+      if (!qrData.stationId || !qrData.expiredAt || !qrData.signature) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid QR data: stationId, expiredAt, and signature are required'
+        });
+      }
+
+      // Validate QR signature
+      if (!this.qrService.verifyQR(qrData)) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid QR code signature'
+        });
+      }
+
+      // Validate QR expiration
+      if (!this.qrService.checkQRExpired(qrData.expiredAt, scannedAt)) {
+        return res.status(401).json({
+          success: false,
+          message: 'QR code has expired'
+        });
+      }
+
+      // Get station data
+      const station = await this.stationService.GetStationByStationId(qrData.stationId);
+      if (!station) {
+        return res.status(404).json({
+          success: false,
+          message: 'Station not found'
+        });
+      }
+
+      // Validate distance from station using station's specific radius threshold
+      const distance = calculateDistanceInMeters(
+        location.latitude,
+        location.longitude,
+        station.stationLocation.latitude,  // Use latitude directly
+        station.stationLocation.longitude  // Use longitude directly
+      );
+
+      // Use the station's radiusThreshold instead of hardcoded value
+      const maxAllowedDistance = station.radiusThreshold;
+      if (distance > maxAllowedDistance) {
+        return res.status(400).json({
+          success: false,
+          message: `You are too far from the check-in station (${Math.round(distance)}m away, max allowed: ${maxAllowedDistance}m)`
+        });
+      }
+
+      // Record check-in with the validated scannedAt time
+      const checkInTime = new Date(scannedAt);
       const updatedAttendance = await attendanceService.recordCheckIn(userId, checkInTime);
       
       return res.status(200).json({
@@ -542,22 +611,82 @@ class AttendanceController {
    */
   async checkOut(req, res) {
     try {
-      // Get userId either from authentication or request body
-      let userId;
-      if (req.user) {
-        userId = req.user.userId;
-      } else if (req.body.userId) {
-        userId = req.body.userId;
-      } else {
+      // Extract check-out data from request body
+      const { 
+        userId, 
+        scannedAt, 
+        location, 
+        qrData 
+      } = req.body;
+      
+      // Validate required fields
+      if (!userId || !scannedAt || !location || !qrData) {
         return res.status(400).json({
           success: false,
-          message: 'User ID is required'
+          message: 'Missing required fields: userId, scannedAt, location, or qrData'
         });
       }
-      
-      // Get optional check-out time from request or use current time
-      const checkOutTime = req.body.checkOut ? new Date(req.body.checkOut) : new Date();
-      
+
+      // Ensure location data is valid
+      if (!location.latitude || !location.longitude) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid location data: latitude and longitude are required'
+        });
+      }
+
+      // Ensure QR data is valid
+      if (!qrData.stationId || !qrData.expiredAt || !qrData.signature) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid QR data: stationId, expiredAt, and signature are required'
+        });
+      }
+
+      // Validate QR signature
+      if (!this.qrService.verifyQR(qrData)) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid QR code signature'
+        });
+      }
+
+      // Validate QR expiration
+      if (!this.qrService.checkQRExpired(qrData.expiredAt, scannedAt)) {
+        return res.status(401).json({
+          success: false,
+          message: 'QR code has expired'
+        });
+      }
+
+      // Get station data
+      const station = await this.stationService.GetStationByStationId(qrData.stationId);
+      if (!station) {
+        return res.status(404).json({
+          success: false,
+          message: 'Station not found'
+        });
+      }
+
+      // Validate distance from station using station's specific radius threshold
+      const distance = calculateDistanceInMeters(
+        location.latitude,
+        location.longitude,
+        station.stationLocation.latitude,  // Use latitude directly
+        station.stationLocation.longitude  // Use longitude directly
+      );
+
+      // Use the station's radiusThreshold instead of hardcoded value
+      const maxAllowedDistance = station.radiusThreshold;
+      if (distance > maxAllowedDistance) {
+        return res.status(400).json({
+          success: false,
+          message: `You are too far from the check-out station (${Math.round(distance)}m away, max allowed: ${maxAllowedDistance}m)`
+        });
+      }
+
+      // Record check-out with the validated scannedAt time
+      const checkOutTime = new Date(scannedAt);
       const updatedAttendance = await attendanceService.recordCheckOut(userId, checkOutTime);
       
       return res.status(200).json({

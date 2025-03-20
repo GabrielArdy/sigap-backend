@@ -1,36 +1,28 @@
 import mongoose from "mongoose";
 const { Schema } = mongoose;
 
-const attendanceSchema = new Schema({
-    attendanceId: {
+const qrSchema = new Schema({
+    qrId : {
         type: String,
         required: true,
         trim: true,
         unique: true,
     },
-    userId: {
+    qrImage : {
         type: String,
         required: true,
         trim: true,
     },
-    date: {
-        type: Date,
-        required: true,
-    },
-    checkIn: {
-        type: Date,
-        required: true,
-    },
-    checkOut: {
-        type: Date,
-        required: false,
-    },
-    attendanceStatus: {
+    qrToken : {
         type: String,
         required: true,
         trim: true,
     },
-    stationId: {
+    expired_at : {
+        type: Date,
+        required: true,
+    },
+    stationId : {
         type: String,
         required: true,
         trim: true,
@@ -44,8 +36,8 @@ const attendanceSchema = new Schema({
         default: Date.now,
     }
 }, {
-    collection: 'sigap_attendances'
+    collection: 'sigap_qrs'
 });
 
-const Attendance = mongoose.model('Attendance', attendanceSchema);
-export default Attendance;
+const QR = mongoose.model('QR', qrSchema);
+export default QR;

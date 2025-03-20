@@ -1,36 +1,41 @@
 import mongoose from "mongoose";
 const { Schema } = mongoose;
 
-const attendanceSchema = new Schema({
-    attendanceId: {
+const stationSchema = new Schema({
+    stationId: {
         type: String,
         required: true,
         trim: true,
         unique: true,
     },
-    userId: {
+    stationName: {
         type: String,
         required: true,
         trim: true,
     },
-    date: {
-        type: Date,
+    stationLocation: {
+        type: {
+            latitude: {
+                type: Number,
+                required: true,
+            },
+            longitude: {
+                type: Number,
+                required: true,
+            }
+        },
         required: true,
     },
-    checkIn: {
-        type: Date,
+    radiusThreshold: {
+        type: Number,
         required: true,
     },
-    checkOut: {
+    lastActive: {
         type: Date,
         required: false,
     },
-    attendanceStatus: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    stationId: {
+
+    stationStatus: {
         type: String,
         required: true,
         trim: true,
@@ -44,8 +49,8 @@ const attendanceSchema = new Schema({
         default: Date.now,
     }
 }, {
-    collection: 'sigap_attendances'
-});
+    collection: 'sigap_stations'
+})
 
-const Attendance = mongoose.model('Attendance', attendanceSchema);
-export default Attendance;
+const Station = mongoose.model('Station', stationSchema);
+export default Station;

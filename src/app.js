@@ -8,6 +8,8 @@ import { connect } from './config/mongodb.js';
 // Import routes
 import authRoutes from './routes/auth_routes.js';
 import attendanceRoutes from './routes/attendance_routes.js';
+import stationRoutes from './routes/station_routes.js';
+import QRRoutes from './routes/qr_routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -58,8 +60,10 @@ app.get('/api/health', (req, res) => {
 });
 
 // Register routes
+app.use('/api/qr', QRRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/attendances', attendanceRoutes);
+app.use('/api/stations', stationRoutes);
 
 // Error handling middleware
 app.use((req, res, next) => {
