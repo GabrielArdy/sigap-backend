@@ -440,8 +440,24 @@ class AttendanceController {
    */
   async getMyDashboard(req, res) {
     try {
-      // This assumes an authentication middleware sets req.user
+      // Check if user is authenticated
+      if (!req.user || !req.user.userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Authentication required'
+        });
+      }
+
+      // Get userId from query
       const userId = req.query.id;
+      
+      // Ensure the requested userId matches the authenticated user's ID
+      if (userId !== req.user.userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Unauthorized access: You can only view your own dashboard'
+        });
+      }
       
       // Always use today's date
       const dashboardData = await attendanceService.getIndividualDashboardData(
