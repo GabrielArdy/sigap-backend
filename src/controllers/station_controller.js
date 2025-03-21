@@ -63,6 +63,29 @@ class StationController {
             });
         }
     }
+
+    async deleteStation(req, res) {
+        try {
+            const { stationId } = req.body;
+            await this.stationService.DeleteStationByStationId(stationId);
+            return res.status(200).json({
+                status: 'success',
+                message: `Station with ID ${stationId} deleted successfully`
+            });
+        } catch (error) {
+            console.error('Error deleting station:', error.message);
+            if (error.message.includes('not found')) {
+                return res.status(404).json({
+                    status: 'error',
+                    message: error.message
+                });
+            }
+            return res.status(500).json({
+                status: 'error',
+                message: error.message
+            });
+        }
+    }
 }
 
 export default StationController;

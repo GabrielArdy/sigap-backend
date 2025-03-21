@@ -14,6 +14,6 @@ router.get('/', (req, res) => stationController.getAllStations(req, res));
 router.get('/:stationId', (req, res) => stationController.getStationById(req, res));
 
 // Route to delete station by ID
-router.delete('/:stationId', (req, res) => stationController.deleteStation(req, res));
+router.delete('/', (req, res) => stationController.deleteStation(req, res));
 
 export default router;
