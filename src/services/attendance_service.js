@@ -365,7 +365,8 @@ class AttendanceService {
           // Initialize with empty DateTime values
           checkIn: null,
           checkOut: null,
-          attendanceStatus: attendanceStatus // Initial status
+          attendanceStatus: attendanceStatus, // Initial status
+          stationId: null,
         };
         
         const newAttendance = await this.recordAttendance(newAttendanceData);
