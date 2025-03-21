@@ -12,6 +12,22 @@ class AttendanceController {
     this.qrService = new QRService();
     this.stationService = new StationService();
     // Removing the hardcoded MAX_ALLOWED_DISTANCE as we'll use station-specific radius
+    
+    // Bind all methods to preserve 'this' context
+    this.recordAttendance = this.recordAttendance.bind(this);
+    this.getAttendanceById = this.getAttendanceById.bind(this);
+    this.getUserAttendances = this.getUserAttendances.bind(this);
+    this.getAttendancesByPeriod = this.getAttendancesByPeriod.bind(this);
+    this.getAttendancesByDateRange = this.getAttendancesByDateRange.bind(this);
+    this.getAttendancesByDate = this.getAttendancesByDate.bind(this);
+    this.updateAttendance = this.updateAttendance.bind(this);
+    this.deleteAttendance = this.deleteAttendance.bind(this);
+    this.getAttendanceStatistics = this.getAttendanceStatistics.bind(this);
+    this.getMyAttendances = this.getMyAttendances.bind(this);
+    this.getIndividualDashboard = this.getIndividualDashboard.bind(this);
+    this.getMyDashboard = this.getMyDashboard.bind(this);
+    this.checkIn = this.checkIn.bind(this);
+    this.checkOut = this.checkOut.bind(this);
   }
 
   /**
@@ -720,4 +736,5 @@ class AttendanceController {
   }
 }
 
+// Export an instance with properly bound methods
 export default new AttendanceController();

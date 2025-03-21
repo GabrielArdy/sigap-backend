@@ -335,7 +335,7 @@ class AttendanceService {
    * @param {Date} checkInTime - Check-in time (defaults to current time)
    * @returns {Promise<Object>} Updated attendance record
    */
-  async recordCheckIn(userId, checkInTime = new Date()) {
+  async recordCheckIn(userId, checkIn = new Date()) {
     try {
       // Validate user exists
       const user = await userRepository.findById(userId);
@@ -364,7 +364,7 @@ class AttendanceService {
       
       // Update the check-in time
       const updatedAttendance = await this.updateAttendance(attendanceId, {
-        checkIn: checkInTime,
+        checkIn: checkIn,
         // Update status to present on check-in
       });
       
