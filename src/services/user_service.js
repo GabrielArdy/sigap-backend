@@ -35,6 +35,30 @@ class UserService {
   }
 
   /**
+   * Get user by userId
+   * @param {String} userId - User ID to find
+   * @returns {Promise<Object>} User information
+   */
+  async getUserByUserId(userId) {
+    try {
+      if (!userId) {
+        throw new Error('User ID is required');
+      }
+      
+      const user = await userRepository.findById(userId);
+      
+      if (!user) {
+        throw new Error('User not found');
+      }
+      
+      return user;
+    } catch (error) {
+      console.error('Error in getUserByUserId service:', error.message);
+      throw error;
+    }
+  }
+
+  /**
    * Delete user by userId
    * @param {String} userId - User ID to delete
    * @returns {Promise<Object>} Deleted user information

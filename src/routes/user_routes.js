@@ -12,6 +12,8 @@ const router = express.Router();
 // Get all users with pagination
 router.get('/', userController.getAllUsers);
 
+router.get('/:userId', userController.getUserById);
+
 // Update a user
 router.put('/update', userController.updateUser);
 

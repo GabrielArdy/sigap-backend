@@ -35,6 +35,36 @@ class UserController {
   }
 
   /**
+   * Get a user by ID
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async getUserById(req, res) {
+    try {
+      const { userId } = req.params;
+      
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          message: 'User ID is required'
+        });
+      }
+
+      const user = await userService.getUserByUserId(userId);
+      
+      return res.status(200).json({
+        success: true,
+        data: user
+      });
+    } catch (error) {
+      return res.status(error.message === 'User not found' ? 404 : 500).json({
+        success: false,
+        message: error.message || 'Failed to fetch user'
+      });
+    }
+  }
+
+  /**
    * Delete a user by ID
    * @param {Object} req - Express request object
    * @param {Object} res - Express response object
