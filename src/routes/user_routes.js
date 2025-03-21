@@ -10,12 +10,12 @@ const router = express.Router();
  */
 
 // Get all users with pagination
-router.get('/users', userController.getAllUsers);
+router.get('/', userController.getAllUsers);
 
 // Update a user
-router.put('/users/update', userController.updateUser);
+router.put('/update', userController.updateUser);
 
 // Delete a user
-router.delete('/users/delete', userController.deleteUser);
+router.delete('/delete', userController.deleteUser);
 
 export default router;
