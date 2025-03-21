@@ -355,17 +355,29 @@ class AttendanceService {
         { limit: 1 }
       );
       
-      // If no attendance record exists for today, throw an error
+      // If no attendance record exists for today, create a new one
+      let attendanceId;
       if (attendanceRecords.length === 0) {
-        throw new Error('No attendance record found for today');
+        // Create a new attendance record with empty check-in and check-out times
+        const newAttendanceData = {
+          userId: userId,
+          date: today,
+          // Initialize with empty DateTime values
+          checkIn: null,
+          checkOut: null,
+          status: 'pending' // Initial status
+        };
+        
+        const newAttendance = await this.recordAttendance(newAttendanceData);
+        attendanceId = newAttendance.attendanceId;
+      } else {
+        attendanceId = attendanceRecords[0].attendanceId;
       }
-      
-      const attendanceId = attendanceRecords[0].attendanceId;
       
       // Update the check-in time
       const updatedAttendance = await this.updateAttendance(attendanceId, {
         checkIn: checkIn,
-        // Update status to present on check-in
+        status: 'present' // Update status to present on check-in
       });
       
       return updatedAttendance;
