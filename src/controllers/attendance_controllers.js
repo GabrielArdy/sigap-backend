@@ -586,13 +586,6 @@ class AttendanceController {
         });
       }
 
-      // Check if an attendance record exists for the user today
-      let attendance = await attendanceService.getTodayAttendance(userId);
-      if (!attendance) {
-        // Create a new attendance record if none exists
-        attendance = await attendanceService.recordAttendance({ userId });
-      }
-
       // Record check-in with the validated scannedAt time
       const checkInTime = new Date(scannedAt);
       const updatedAttendance = await attendanceService.recordCheckIn(userId, checkInTime);

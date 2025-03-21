@@ -435,6 +435,39 @@ class AttendanceService {
       throw error;
     }
   }
+
+  /**
+   * Get today's attendance for a specific user
+   * @param {String} userId - User ID
+   * @returns {Promise<Object|null>} Attendance record for today or null if not found
+   */
+  async getTodayAttendance(userId) {
+    try {
+      // Validate user exists
+      const user = await userRepository.findById(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+      
+      // Get today's date with time set to midnight (00:00:00.000)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // Find today's attendance record for the user
+      const attendanceRecords = await attendanceRepository.findByDateAndUserId(
+        today, 
+        userId, 
+        {}, 
+        { limit: 1 }
+      );
+      
+      // Return the attendance record or null if not found
+      return attendanceRecords.length > 0 ? attendanceRecords[0] : null;
+    } catch (error) {
+      console.error('Error getting today\'s attendance:', error.message);
+      throw error;
+    }
+  }
 }
 
 export default new AttendanceService();
