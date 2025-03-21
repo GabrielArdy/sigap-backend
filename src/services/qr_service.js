@@ -43,12 +43,18 @@ class QRService {
         errorCorrectionLevel: 'H'
       });
       
-      // Store QR in database
+      // Generate a unique QR ID
+      const qrId = crypto.randomUUID();
+      
+      // Store QR in database with field names matching the schema
       await this.repository.createQR({
+        qrId,
+        qrImage: qrCodeBase64,
+        qrToken: signature,
+        expired_at: expiredAt, // Using the field name from the schema
         stationId,
-        expiredAt,
-        code: signature,
-        createdAt: new Date()
+        createdAt: new Date(),
+        updatedAt: new Date()
       });
       
       return {
