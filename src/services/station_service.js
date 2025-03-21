@@ -59,7 +59,7 @@ class StationService {
     async DeleteStationByStationId(stationId) {
         try {
             // Check if station exists
-            const station = await this.stationRepository.findStationByStationId(stationId);
+            const station = await this.stationRepository.findStationById(stationId);
             if (!station) {
                 throw new Error(`Station with ID ${stationId} not found`);
             }
