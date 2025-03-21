@@ -335,10 +335,10 @@ class AttendanceService {
    * @param {Date} checkInTime - Check-in time (defaults to current time)
    * @returns {Promise<Object>} Updated attendance record
    */
-  async recordCheckIn(userId, checkIn = new Date(), attendanceStatus = 'A') {
+  async recordCheckIn(attendanceData) {
     try {
       // Validate user exists
-      const user = await userRepository.findById(userId);
+      const user = await userRepository.findById(attendanceData.userId);
       if (!user) {
         throw new Error('User not found');
       }
@@ -350,7 +350,7 @@ class AttendanceService {
       // Find today's attendance record for the user
       const attendanceRecords = await attendanceRepository.findByDateAndUserId(
         today, 
-        userId, 
+        attendanceData.userId, 
         {}, 
         { limit: 1 }
       );
@@ -360,13 +360,13 @@ class AttendanceService {
       if (attendanceRecords.length === 0) {
         // Create a new attendance record with empty check-in and check-out times
         const newAttendanceData = {
-          userId: userId,
+          userId: attendanceData.userId,
           date: today,
           // Initialize with empty DateTime values
-          checkIn: null,
-          checkOut: null,
-          attendanceStatus: attendanceStatus, // Initial status
-          stationId: "-",
+          checkIn: attendanceData.checkIn,
+          checkOut: today,
+          attendanceStatus: attendanceData.attendanceStatus, // Initial status
+          stationId: attendanceData.stationId,
         };
         
         const newAttendance = await this.recordAttendance(newAttendanceData);
@@ -377,8 +377,8 @@ class AttendanceService {
       
       // Update the check-in time
       const updatedAttendance = await this.updateAttendance(attendanceId, {
-        checkIn: checkIn,
-        attendanceStatus // Update status to present on check-in
+        checkIn: attendanceData.checkIn,
+        attendanceStatus: attendanceData.attendanceStatus// Update status to present on check-in
       });
       
       return updatedAttendance;

@@ -588,7 +588,14 @@ class AttendanceController {
 
       // Record check-in with the validated scannedAt time
       const checkInTime = new Date(scannedAt);
-      const updatedAttendance = await attendanceService.recordCheckIn(userId, checkInTime);
+
+      const attData = {
+        userId: userId,
+        checkInTime: checkInTime,
+        attendanceStatus: 'A',
+        stationId: qrData.stationId
+      }
+      const updatedAttendance = await attendanceService.recordCheckIn(attData);
       
       return res.status(200).json({
         success: true,
