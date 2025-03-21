@@ -15,7 +15,9 @@ class UserController {
       const { page, limit } = req.query;
       const options = {
         page: parseInt(page) || 1,
-        limit: parseInt(limit) || 10
+        limit: parseInt(limit) || 10,
+        sort: "firstName",
+        sortDirection: 'asc'  // Fixed to ascending order
       };
       
       const filter = req.query.filter ? JSON.parse(req.query.filter) : {};
