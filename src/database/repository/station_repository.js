@@ -1,12 +1,15 @@
 import Station from '../models/station.js';
 
 class StationRepository {
-    async createStation({ stationId, stationName, stationLocation }) {
+    async createStation({ stationId, stationName, stationLocation, radiusThreshold, stationStatus, lastActive }) {
         try {
             const station = new Station({
                 stationId,
                 stationName,
                 stationLocation,
+                radiusThreshold,
+                stationStatus,
+                lastActive,
             });
             return await station.save();
         } catch (error) {

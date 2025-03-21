@@ -7,7 +7,7 @@ class StationService {
 
     async CreateNewStation(stationData) {
         try {
-            const { stationId, stationName, stationLocation } = stationData;
+            const { stationId, stationName, stationLocation, radiusThreshold, stationStatus, lastActive } = stationData;
             
             // Check if station with same ID already exists
             const existingStation = await this.stationRepository.findStationByStationId(stationId);
@@ -19,7 +19,11 @@ class StationService {
             const result = await this.stationRepository.createStation({
                 stationId,
                 stationName,
-                stationLocation
+                stationLocation,
+                radiusThreshold,
+                stationStatus,
+                lastActive,
+
             });
             
             return result;
