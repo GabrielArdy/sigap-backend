@@ -79,6 +79,15 @@ class StationRepository {
         }
     }
 
+    async deleteStationByStationId(stationId) {
+        try {
+            return await Station.findOneAndDelete({ stationId });
+        } catch (error) {
+            console.error('Error deleting station by stationId:', error.message);
+            throw error;
+        }
+    }
+
     async findStationsNearLocation(latitude, longitude, maxDistance = 10000) {
         try {
             // Find stations within a certain radius (in meters)

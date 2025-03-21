@@ -55,6 +55,23 @@ class StationService {
             throw error;
         }
     }
+
+    async DeleteStationByStationId(stationId) {
+        try {
+            // Check if station exists
+            const station = await this.stationRepository.findStationByStationId(stationId);
+            if (!station) {
+                throw new Error(`Station with ID ${stationId} not found`);
+            }
+            
+            // Delete the station
+            const result = await this.stationRepository.deleteStationByStationId(stationId);
+            return result;
+        } catch (error) {
+            console.error('Error in DeleteStationByStationId service:', error.message);
+            throw error;
+        }
+    }
 }
 
 export default StationService;

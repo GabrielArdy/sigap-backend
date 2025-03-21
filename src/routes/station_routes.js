@@ -13,4 +13,7 @@ router.get('/', (req, res) => stationController.getAllStations(req, res));
 // Route to get station by ID
 router.get('/:stationId', (req, res) => stationController.getStationById(req, res));
 
+// Route to delete station by ID
+router.delete('/:stationId', (req, res) => stationController.deleteStation(req, res));
+
 export default router;
