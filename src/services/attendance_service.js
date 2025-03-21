@@ -366,7 +366,7 @@ class AttendanceService {
           checkIn: null,
           checkOut: null,
           attendanceStatus: attendanceStatus, // Initial status
-          stationId: null,
+          stationId: "-",
         };
         
         const newAttendance = await this.recordAttendance(newAttendanceData);
