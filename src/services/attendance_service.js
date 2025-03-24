@@ -30,12 +30,14 @@ class AttendanceService {
         attendanceData.date = new Date();
       }
 
-      if (!attendanceData.checkIn) {
-        attendanceData.checkIn = new Date().setHours(0, 0, 0, 0);
-      }
+      // Don't reset check-in time to midnight - keep the actual time
+      // if (!attendanceData.checkIn) {
+      //   attendanceData.checkIn = new Date().setHours(0, 0, 0, 0);
+      // }
 
+      // Set default check-out time if not provided
       if (!attendanceData.checkOut) {
-        attendanceData.checkOut = new Date().setHours(0, 0, 0, 0);
+        attendanceData.checkOut = new Date(0); // Unix epoch time
       }
 
       // Create attendance record
@@ -347,6 +349,16 @@ class AttendanceService {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
+      // Use scannedAt from request as check-in time, or current time if not available
+      let checkInTime;
+      if (attendanceData.scannedAt) {
+        checkInTime = new Date(attendanceData.scannedAt);
+      } else if (attendanceData.checkIn) {
+        checkInTime = new Date(attendanceData.checkIn);
+      } else {
+        checkInTime = new Date();
+      }
+      
       // Find today's attendance record for the user
       const attendanceRecords = await attendanceRepository.findByDateAndUserId(
         today, 
@@ -362,10 +374,10 @@ class AttendanceService {
         const newAttendanceData = {
           userId: attendanceData.userId,
           date: today,
-          checkIn: attendanceData.checkIn,
+          checkIn: checkInTime,
           checkOut: new Date(0), // Unix epoch (January 1, 1970, 00:00:00 GMT)
           attendanceStatus: 'A', // Set status to "A"
-          stationId: attendanceData.stationId,
+          stationId: attendanceData.qrData?.stationId || attendanceData.stationId,
         };
         
         const newAttendance = await this.recordAttendance(newAttendanceData);
@@ -376,8 +388,7 @@ class AttendanceService {
       
       // Update the check-in time and status
       const updatedAttendance = await this.updateAttendance(attendanceId, {
-        checkIn: attendanceData.checkIn,
-        checkOut: new Date(0), // Unix epoch (January 1, 1970, 00:00:00 GMT)
+        checkIn: checkInTime,
         attendanceStatus: 'A' // Set status to "A"
       });
       
