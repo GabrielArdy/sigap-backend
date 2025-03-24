@@ -298,7 +298,9 @@ class AttendanceService {
         },
         attendanceData: {
           checkIn: attendanceRecords.length > 0 ? attendanceRecords[0].checkIn : null,
-          checkOut: attendanceRecords.length > 0 ? attendanceRecords[0].checkOut : null
+          checkOut: attendanceRecords.length > 0 
+          ? (attendanceRecords[0].checkOut.getTime() === new Date(0).getTime() ? null : attendanceRecords[0].checkOut)
+          : null
         }
       };
       
