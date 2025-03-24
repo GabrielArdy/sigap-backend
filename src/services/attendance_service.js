@@ -358,14 +358,13 @@ class AttendanceService {
       // If no attendance record exists for today, create a new one
       let attendanceId;
       if (attendanceRecords.length === 0) {
-        // Create a new attendance record with empty check-in and check-out times
+        // Create a new attendance record with check-in and unix epoch for check-out
         const newAttendanceData = {
           userId: attendanceData.userId,
           date: today,
-          // Initialize with empty DateTime values
           checkIn: attendanceData.checkIn,
-          checkOut: today,
-          attendanceStatus: attendanceData.attendanceStatus, // Initial status
+          checkOut: new Date(0), // Unix epoch (January 1, 1970, 00:00:00 GMT)
+          attendanceStatus: 'A', // Set status to "A"
           stationId: attendanceData.stationId,
         };
         
@@ -375,10 +374,11 @@ class AttendanceService {
         attendanceId = attendanceRecords[0].attendanceId;
       }
       
-      // Update the check-in time
+      // Update the check-in time and status
       const updatedAttendance = await this.updateAttendance(attendanceId, {
         checkIn: attendanceData.checkIn,
-        attendanceStatus: attendanceData.attendanceStatus// Update status to present on check-in
+        checkOut: new Date(0), // Unix epoch (January 1, 1970, 00:00:00 GMT)
+        attendanceStatus: 'A' // Set status to "A"
       });
       
       return updatedAttendance;
@@ -390,14 +390,13 @@ class AttendanceService {
 
   /**
    * Record check-out time for a user's attendance
-   * @param {String} userId - User ID
-   * @param {Date} checkOutTime - Check-out time (defaults to current time)
+   * @param {Object} attendanceData - Attendance data including userId and checkOut time
    * @returns {Promise<Object>} Updated attendance record
    */
-  async recordCheckOut(userId, checkOutTime = new Date()) {
+  async recordCheckOut(attendanceData) {
     try {
       // Validate user exists
-      const user = await userRepository.findById(userId);
+      const user = await userRepository.findById(attendanceData.userId);
       if (!user) {
         throw new Error('User not found');
       }
@@ -409,7 +408,7 @@ class AttendanceService {
       // Find today's attendance record for the user
       const attendanceRecords = await attendanceRepository.findByDateAndUserId(
         today, 
-        userId, 
+        attendanceData.userId, 
         {}, 
         { limit: 1 }
       );
@@ -421,13 +420,10 @@ class AttendanceService {
       
       const attendanceId = attendanceRecords[0].attendanceId;
       
-      // Update the check-out time
+      // Update the check-out time while preserving the "A" attendance status
       const updatedAttendance = await this.updateAttendance(attendanceId, {
-        checkOut: checkOutTime,
-        status: 'present' 
-        // If we want to calculate work hours, we could do that here
-        // For example:
-        // workHours: (checkOutTime - attendanceRecords[0].checkIn) / (1000 * 60 * 60) // hours
+        checkOut: attendanceData.checkOut,
+        attendanceStatus: 'P' 
       });
       
       return updatedAttendance;
