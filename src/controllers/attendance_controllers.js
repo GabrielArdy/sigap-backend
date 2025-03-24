@@ -707,7 +707,14 @@ class AttendanceController {
 
       // Record check-out with the validated scannedAt time
       const checkOutTime = new Date(scannedAt);
-      const updatedAttendance = await attendanceService.recordCheckOut(userId, checkOutTime);
+      const attData = {
+        userId: userId,
+        checkOutTime: checkOutTime,
+        attendanceStatus: 'P',
+        stationId: qrData.stationId
+
+      }
+      const updatedAttendance = await attendanceService.recordCheckOut(attData);
       
       return res.status(200).json({
         success: true,
