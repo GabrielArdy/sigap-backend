@@ -709,7 +709,7 @@ class AttendanceController {
       const checkOutTime = new Date(scannedAt);
       const attData = {
         userId: userId,
-        checkOutTime: checkOutTime,
+        checkOut: checkOutTime,
         attendanceStatus: 'P',
         stationId: qrData.stationId
 
