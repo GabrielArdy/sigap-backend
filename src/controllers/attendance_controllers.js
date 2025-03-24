@@ -429,11 +429,13 @@ class AttendanceController {
   async getIndividualDashboard(req, res) {
     try {
       const { userId } = req.params;
+      const { refresh = 'true' } = req.query; // Add refresh option with default true
       
       // Always use today's date
       const dashboardData = await attendanceService.getIndividualDashboardData(
         userId,
-        new Date()
+        new Date(),
+        refresh === 'true' // Pass refresh flag to service
       );
       
       return res.status(200).json({
@@ -475,6 +477,7 @@ class AttendanceController {
 
       // Get userId from query
       const userId = req.query.id;
+      const { refresh = 'true' } = req.query; // Add refresh option with default true
       
       // Ensure the requested userId matches the authenticated user's ID
       if (userId !== req.user.userId) {
@@ -484,10 +487,11 @@ class AttendanceController {
         });
       }
       
-      // Always use today's date
+      // Always use today's date and pass refresh option
       const dashboardData = await attendanceService.getIndividualDashboardData(
         userId,
-        new Date()
+        new Date(),
+        refresh === 'true' // Pass refresh flag to service
       );
       
       return res.status(200).json({
