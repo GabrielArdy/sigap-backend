@@ -268,9 +268,10 @@ class AttendanceService {
    * Get individual user dashboard data
    * @param {String} userId - User ID
    * @param {Date|String} date - The date to get attendance data for (defaults to current date)
+   * @param {Boolean} refresh - Whether to force a fresh fetch from database
    * @returns {Promise<Object>} User and attendance data for dashboard
    */
-  async getIndividualDashboardData(userId, date = new Date()) {
+  async getIndividualDashboardData(userId, date = new Date(), refresh = true) {
     try {
       // Validate user exists and get user data
       const user = await userRepository.findById(userId);
@@ -282,12 +283,43 @@ class AttendanceService {
       const targetDate = typeof date === 'string' ? new Date(date) : date;
       
       // Get attendance for the user on the specified date
-      const attendanceRecords = await attendanceRepository.findByDateAndUserId(
-        targetDate, 
-        userId, 
-        {}, 
-        { limit: 1 }
-      );
+      // Use a direct query with no caching if refresh is true
+      let attendanceRecords = [];
+      if (refresh) {
+        // Create start and end of day for precise querying
+        const startOfDay = new Date(targetDate);
+        startOfDay.setHours(0, 0, 0, 0);
+        
+        const endOfDay = new Date(targetDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        
+        // Use a more direct query with explicit date range
+        attendanceRecords = await attendanceRepository.findByDateAndUserId(
+          startOfDay, 
+          userId, 
+          { 
+            date: { 
+              $gte: startOfDay,
+              $lte: endOfDay
+            }
+          }, 
+          { limit: 1 }
+        );
+      } else {
+        // Use the existing implementation if not refreshing
+        attendanceRecords = await attendanceRepository.findByDateAndUserId(
+          targetDate, 
+          userId, 
+          {}, 
+          { limit: 1 }
+        );
+      }
+      
+      // Double-check records exist before using them
+      const hasValidRecord = attendanceRecords && 
+                           attendanceRecords.length > 0 && 
+                           attendanceRecords[0] && 
+                           attendanceRecords[0].checkIn;
       
       // Format the response
       const dashboardData = {
@@ -297,10 +329,12 @@ class AttendanceService {
           nip: user.nip || ''
         },
         attendanceData: {
-          checkIn: attendanceRecords.length > 0 ? attendanceRecords[0].checkIn : null,
-          checkOut: attendanceRecords.length > 0 
-          ? (attendanceRecords[0].checkOut.getTime() === new Date(0).getTime() ? null : attendanceRecords[0].checkOut)
-          : null
+          checkIn: hasValidRecord ? attendanceRecords[0].checkIn : null,
+          checkOut: hasValidRecord && 
+                    attendanceRecords[0].checkOut && 
+                    attendanceRecords[0].checkOut.getTime() !== new Date(0).getTime() 
+                    ? attendanceRecords[0].checkOut 
+                    : null
         }
       };
       
