@@ -522,7 +522,7 @@ class AttendanceService {
   async getAllAttendances(filters = {}, options = {}) {
     try {
       // Get attendances with filters and pagination
-      const attendances = await attendanceRepository.findAttendances(filters, options);
+      const attendances = await attendanceRepository.findAll(filters, options);
       
       // Get total count for pagination
       const totalCount = await attendanceRepository.countAttendances(filters);
