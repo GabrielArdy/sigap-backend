@@ -86,6 +86,92 @@ class StationController {
             });
         }
     }
+
+    async updateStationStatus(req, res) {
+        try {
+            const { stationId, stationStatus } = req.body;
+            
+            if (!stationId || !stationStatus) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'Station ID and status are required'
+                });
+            }
+
+            // Validate status value
+            if (!['active', 'offline'].includes(stationStatus)) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'Station status must be either "active" or "offline"'
+                });
+            }
+
+            const updatedStation = await this.stationService.UpdateStatusStationByStationId(stationId, stationStatus);
+            
+            return res.status(200).json({
+                status: 'success',
+                message: `Station status updated to ${stationStatus} successfully`,
+                data: updatedStation
+            });
+        } catch (error) {
+            console.error('Error updating station status:', error.message);
+            
+            if (error.message.includes('not found')) {
+                return res.status(404).json({
+                    status: 'error',
+                    message: error.message
+                });
+            } else if (error.message.includes('already active')) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: error.message
+                });
+            }
+            
+            return res.status(500).json({
+                status: 'error',
+                message: error.message
+            });
+        }
+    }
+
+    async checkStationStatus(req, res) {
+        try {
+            const { stationId } = req.params;
+            
+            if (!stationId) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'Station ID is required'
+                });
+            }
+
+            const stationStatus = await this.stationService.CheckStationStatus(stationId);
+            
+            return res.status(200).json({
+                status: 'success',
+                message: 'Station status retrieved successfully',
+                data: { 
+                    stationId,
+                    stationStatus
+                }
+            });
+        } catch (error) {
+            console.error('Error checking station status:', error.message);
+            
+            if (error.message.includes('not found')) {
+                return res.status(404).json({
+                    status: 'error',
+                    message: error.message
+                });
+            }
+            
+            return res.status(500).json({
+                status: 'error',
+                message: error.message
+            });
+        }
+    }
 }
 
 export default StationController;

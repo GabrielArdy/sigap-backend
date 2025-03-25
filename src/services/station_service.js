@@ -56,6 +56,50 @@ class StationService {
         }
     }
 
+    async UpdateStatusStationByStationId(stationId, stationStatus) {
+        try {
+            // Check if station exists
+            const station = await this.stationRepository.findStationByStationId(stationId);
+            if (!station) {
+                throw new Error(`Station with ID ${stationId} not found`);
+            }
+            
+            // Check if station is already active and trying to activate again
+            if (station.stationStatus === 'active' && stationStatus === 'active') {
+                throw new Error(`Station with ID ${stationId} is already active`);
+            }
+            
+            // Update the station status and last active time
+            const updatedStation = await this.stationRepository.updateStation(
+                station._id,
+                { 
+                    stationStatus: stationStatus,
+                    lastActive: stationStatus === 'active' ? new Date() : station.lastActive
+                }
+            );
+            
+            return updatedStation;
+        } catch (error) {
+            console.error('Error in UpdateStatusStationByStationId service:', error.message);
+            throw error;
+        }
+    }
+
+    async CheckStationStatus(stationId) {
+        try {
+            // Check if station exists
+            const station = await this.stationRepository.findStationByStationId(stationId);
+            if (!station) {
+                throw new Error(`Station with ID ${stationId} not found`);
+            }
+            
+            return station.stationStatus;
+        } catch (error) {
+            console.error('Error in CheckStationStatus service:', error.message);
+            throw error;
+        }
+    }
+
     async DeleteStationByStationId(stationId) {
         try {
             // Check if station exists
