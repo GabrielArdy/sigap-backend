@@ -616,8 +616,15 @@ class AttendanceService {
       // Get total count for pagination
       const totalCount = await attendanceRepository.countAttendances(countFilter);
       
+      // Create user data object with fullName and nip
+      const userData = {
+        fullName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+        nip: user.nip || null // nip could be null as mentioned in the requirements
+      };
+      
       return {
-        attendances,
+        userData,
+        attendanceData: attendances,
         pagination: {
           total: totalCount,
           limit: options.limit || 10,
