@@ -23,6 +23,13 @@ router.post('/register', authController.register);
 router.post('/login', authController.login);
 
 /**
+ * @route POST /api/auth/login/admin
+ * @desc Authenticate admin user and get token
+ * @access Public
+ */
+router.post('/login/admin', authController.loginAdmin);
+
+/**
  * @route POST /api/auth/logout
  * @desc Invalidate user token
  * @access Private

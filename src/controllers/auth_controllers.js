@@ -88,6 +88,54 @@ class AuthController {
   }
 
   /**
+   * Login admin user
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async loginAdmin(req, res) {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Email and password are required' 
+        });
+      }
+      
+      const result = await authService.loginAdminUser(email, password);
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Admin login successful',
+        data: result
+      });
+    } catch (error) {
+      console.error('Admin login error in controller:', error);
+      
+      if (error.message === 'Invalid email or password' || error.message === 'User not found') {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid credentials'
+        });
+      }
+      
+      if (error.message === 'Access denied: Admin privileges required') {
+        return res.status(403).json({
+          success: false,
+          message: error.message
+        });
+      }
+      
+      return res.status(500).json({
+        success: false,
+        message: 'Admin login failed',
+        error: error.message
+      });
+    }
+  }
+
+  /**
    * Change password
    * @param {Object} req - Express request object
    * @param {Object} res - Express response object

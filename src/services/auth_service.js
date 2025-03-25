@@ -226,6 +226,60 @@ class AuthService {
   }
 
   /**
+   * Login for admin access
+   * @param {String} email - User email
+   * @param {String} password - User password
+   * @returns {Promise<Object>} User data with access token if admin
+   * @throws {Error} If user is not an admin or credentials are invalid
+   */
+  async loginAdminUser(email, password) {
+    try {
+      // Find auth record by email
+      const auth = await authRepository.findByEmail(email);
+      if (!auth) {
+        throw new Error('Invalid email or password');
+      }
+
+      // Compare passwords
+      const isPasswordValid = await bcrypt.compare(password, auth.password);
+      if (!isPasswordValid) {
+        throw new Error('Invalid email or password');
+      }
+
+      // Check if user has admin privileges
+      if (auth.role === 'admin' || (auth.role === 'user' && auth.isAdmin === true)) {
+        // Get user data
+        const user = await userRepository.findById(auth.userId);
+        if (!user) {
+          throw new Error('User not found');
+        }
+
+        // Generate token
+        const token = this._generateToken({ userId: auth.userId, email: auth.email, isAdmin: true });
+
+        // Update token in database
+        const tokenExpiry = new Date();
+        tokenExpiry.setHours(tokenExpiry.getHours() + 24); // 24 hours from now
+        
+        await authRepository.updateAuth(auth.userId, {
+          token,
+          token_expired: tokenExpiry
+        });
+
+        return {
+          user: this._sanitizeUser(user),
+          token
+        };
+      } else {
+        throw new Error('Access denied: Admin privileges required');
+      }
+    } catch (error) {
+      console.error('Admin login error:', error.message);
+      throw error;
+    }
+  }
+
+  /**
    * Logout user
    * @param {String} userId - User ID
    * @returns {Promise<Boolean>} True if logout successful
