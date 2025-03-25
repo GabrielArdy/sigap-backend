@@ -16,7 +16,7 @@ router.get('/:stationId', (req, res) => stationController.getStationById(req, re
 // Route to delete station by ID
 router.delete('/', (req, res) => stationController.deleteStation(req, res));
 
-router.put('/:stationId', (req, res) => stationController.updateStationStatus(req, res));
+router.put('/', (req, res) => stationController.updateStationStatus(req, res));
 
 router.get('/status/:stationId', (req, res) => stationController.checkStationStatus(req, res));
 
