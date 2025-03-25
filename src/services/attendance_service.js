@@ -512,6 +512,129 @@ class AttendanceService {
       throw error;
     }
   }
+
+  /**
+   * Get all attendance records with pagination and filtering
+   * @param {Object} filters - Filter criteria
+   * @param {Object} options - Query options (pagination, sorting)
+   * @returns {Promise<Object>} Attendance records and pagination info
+   */
+  async getAllAttendances(filters = {}, options = {}) {
+    try {
+      // Get attendances with filters and pagination
+      const attendances = await attendanceRepository.findAttendances(filters, options);
+      
+      // Get total count for pagination
+      const totalCount = await attendanceRepository.countAttendances(filters);
+      
+      // Enhance attendance records with user information
+      const enhancedAttendances = await Promise.all(
+        attendances.map(async (attendance) => {
+          // Find the associated user
+          const user = await userRepository.findById(attendance.userId);
+          
+          // Combine first and last name to create fullName
+          const fullName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : '';
+          
+          // Return formatted attendance object
+          return {
+            attendanceId: attendance.attendanceId,
+            date: attendance.date,
+            checkIn: attendance.checkIn,
+            checkOut: attendance.checkOut,
+            attendanceStatus: attendance.attendanceStatus,
+            fullName: fullName
+          };
+        })
+      );
+      
+      return {
+        attendances: enhancedAttendances,
+        pagination: {
+          total: totalCount,
+          limit: options.limit || 10,
+          skip: options.skip || 0
+        }
+      };
+    } catch (error) {
+      console.error('Error getting all attendances:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Get attendance records for a specific user by month and year
+   * @param {String} userId - User ID
+   * @param {Number} month - Month (1-12)
+   * @param {Number} year - Year (e.g., 2023)
+   * @param {Object} options - Query options (pagination, sorting)
+   * @returns {Promise<Object>} Attendance records and pagination info
+   */
+  async getUserAttendancesByMonth(userId, month, year, options = {}) {
+    try {
+      // Validate user exists
+      const user = await userRepository.findById(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      // Validate month (1-12)
+      if (month < 1 || month > 12) {
+        throw new Error('Invalid month. Month must be between 1 and 12');
+      }
+
+      // Calculate start and end dates for the specified month
+      const startDate = new Date(year, month - 1, 1); // Month is 0-indexed in JavaScript Date
+      startDate.setHours(0, 0, 0, 0);
+      
+      // Get the last day of the month by going to the first day of next month and subtracting one day
+      const endDate = new Date(year, month, 0);
+      endDate.setHours(23, 59, 59, 999);
+      
+      // Create filter combining userId and date range
+      const filters = {
+        userId: userId
+      };
+      
+      // Get attendances for the user within the specified month
+      const attendances = await attendanceRepository.findByDateRange(
+        startDate,
+        endDate,
+        filters,
+        options
+      );
+      
+      // Combined filter for count
+      const countFilter = {
+        userId: userId,
+        date: {
+          $gte: startDate,
+          $lte: endDate
+        }
+      };
+      
+      // Get total count for pagination
+      const totalCount = await attendanceRepository.countAttendances(countFilter);
+      
+      return {
+        attendances,
+        pagination: {
+          total: totalCount,
+          limit: options.limit || 10,
+          skip: options.skip || 0
+        },
+        dateRange: {
+          start: startDate,
+          end: endDate,
+          month: month,
+          year: year
+        }
+      };
+    } catch (error) {
+      console.error('Error getting user attendances by month:', error.message);
+      throw error;
+    }
+  }
 }
 
 export default new AttendanceService();
