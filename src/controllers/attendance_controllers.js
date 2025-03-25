@@ -846,9 +846,11 @@ class AttendanceController {
         options
       );
       
+      // Return the updated response structure that matches the service output
       return res.status(200).json({
         success: true,
-        data: result.attendances,
+        userData: result.userData,
+        attendanceData: result.attendanceData,
         pagination: result.pagination,
         dateRange: result.dateRange
       });
