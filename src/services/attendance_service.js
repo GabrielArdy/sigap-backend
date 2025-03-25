@@ -470,7 +470,7 @@ class AttendanceService {
       // Update the check-out time while preserving the "A" attendance status
       const updatedAttendance = await this.updateAttendance(attendanceId, {
         checkOut: attendanceData.checkOut,
-        attendanceStatus: 'P' 
+        attendanceStatus: attendanceData.attendanceStatus 
       });
       
       return updatedAttendance;
