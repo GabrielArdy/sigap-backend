@@ -79,6 +79,20 @@ router.get('/date-range', authMiddleware, attendanceController.getAttendancesByD
 router.post('/', authMiddleware, attendanceController.recordAttendance);
 
 /**
+ * @route GET /api/attendances
+ * @desc Get all attendance records
+ * @access Private
+ */
+router.get('/', authMiddleware, attendanceController.getAllAttendances);
+
+/**
+ * @route GET /api/attendances/:userId
+ * @desc Get attendance records for a specific user
+ * @access Private
+ */
+router.get('/:userId', authMiddleware, attendanceController.getUserAttendancesByMonth);
+
+/**
  * @route GET /api/attendances/:attendanceId
  * @desc Get attendance by ID
  * @access Private

@@ -28,6 +28,8 @@ class AttendanceController {
     this.getMyDashboard = this.getMyDashboard.bind(this);
     this.checkIn = this.checkIn.bind(this);
     this.checkOut = this.checkOut.bind(this);
+    this.getAllAttendances = this.getAllAttendances.bind(this);
+    this.getUserAttendancesByMonth = this.getUserAttendancesByMonth.bind(this);
   }
 
   /**
@@ -741,6 +743,135 @@ class AttendanceController {
       return res.status(500).json({
         success: false,
         message: 'Failed to record check-out',
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Get all attendance records with pagination, filtering, and user information
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async getAllAttendances(req, res) {
+    try {
+      // Extract query parameters for pagination and filtering
+      const { limit = 10, skip = 0, sort, ...filters } = req.query;
+      
+      // Parse query parameters
+      const options = {
+        limit: parseInt(limit, 10),
+        skip: parseInt(skip, 10)
+      };
+      
+      // Parse sort option if provided
+      if (sort) {
+        options.sort = JSON.parse(sort);
+      }
+      
+      // Get all attendances with enhanced user info
+      const result = await attendanceService.getAllAttendances(filters, options);
+      
+      return res.status(200).json({
+        success: true,
+        data: result.attendances,
+        pagination: result.pagination
+      });
+    } catch (error) {
+      console.error('Get all attendances error:', error);
+      
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to get attendance records',
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Get attendance records for a specific user by month and year
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async getUserAttendancesByMonth(req, res) {
+    try {
+      // Extract parameters
+      const { userId } = req.params;
+      const { month, year, limit = 30, skip = 0, sort } = req.query;
+      
+      // Validate required parameters
+      if (!month || !year) {
+        return res.status(400).json({
+          success: false,
+          message: 'Month and year are required query parameters'
+        });
+      }
+      
+      // Parse parameters
+      const parsedMonth = parseInt(month, 10);
+      const parsedYear = parseInt(year, 10);
+      
+      // Validate month range
+      if (parsedMonth < 1 || parsedMonth > 12) {
+        return res.status(400).json({
+          success: false,
+          message: 'Month must be between 1 and 12'
+        });
+      }
+      
+      // Validate year range (basic validation)
+      if (parsedYear < 1900 || parsedYear > 2100) {
+        return res.status(400).json({
+          success: false,
+          message: 'Year must be between 1900 and 2100'
+        });
+      }
+      
+      // Parse query parameters for pagination
+      const options = {
+        limit: parseInt(limit, 10),
+        skip: parseInt(skip, 10)
+      };
+      
+      // Parse sort option if provided
+      if (sort) {
+        options.sort = JSON.parse(sort);
+      }
+      
+      // Get attendances for the user by month
+      const result = await attendanceService.getUserAttendancesByMonth(
+        userId,
+        parsedMonth,
+        parsedYear,
+        options
+      );
+      
+      return res.status(200).json({
+        success: true,
+        data: result.attendances,
+        pagination: result.pagination,
+        dateRange: result.dateRange
+      });
+    } catch (error) {
+      console.error('Get user attendances by month error:', error);
+      
+      if (error.message === 'User not found') {
+        return res.status(404).json({
+          success: false,
+          message: error.message
+        });
+      }
+      
+      if (error.message.includes('Invalid month')) {
+        return res.status(400).json({
+          success: false,
+          message: error.message
+        });
+      }
+      
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to get user attendances by month',
         error: error.message
       });
     }
