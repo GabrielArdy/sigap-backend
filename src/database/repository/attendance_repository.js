@@ -394,8 +394,7 @@ class AttendanceRepository {
       // Count attendance records with valid checkout times
       const checkOutCount = await Attendance.countDocuments({
         date: {
-          $gte: startOfDay,
-          $lte: endOfDay
+          $eq: startOfDay
         },
         checkOutTime: { 
           $ne: epochTime // Not equal to epoch time (1970-01-01)
