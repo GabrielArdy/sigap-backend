@@ -349,6 +349,66 @@ class AttendanceRepository {
       throw error;
     }
   }
+
+  async CountTodayCheckIn(date = new Date()) {
+    try {
+      // Create start and end of the day to cover the full day
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+      
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      // Count all attendance records for this day
+      const checkInCount = await Attendance.countDocuments({
+        date: {
+          $gte: startOfDay,
+          $lte: endOfDay
+        }
+      });
+      
+      return checkInCount;
+    } catch (error) {
+      console.error('Error counting today\'s check-ins:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Count today's check-outs (where checkOut is not default/epoch time)
+   * @param {Date} date - The date to count check-outs for (defaults to current date)
+   * @returns {Promise<Number>} Count of check-outs for the day
+   */
+  async CountTodayCheckOut(date = new Date()) {
+    try {
+      // Create start and end of the day to cover the full day
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+      
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      // Epoch time reference (1970-01-01)
+      const epochTime = new Date(0);
+      
+      // Count attendance records with valid checkout times
+      const checkOutCount = await Attendance.countDocuments({
+        date: {
+          $gte: startOfDay,
+          $lte: endOfDay
+        },
+        checkOutTime: { 
+          $ne: epochTime // Not equal to epoch time (1970-01-01)
+        }
+      });
+      
+      return checkOutCount;
+    } catch (error) {
+      console.error('Error counting today\'s check-outs:', error.message);
+      throw error;
+    }
+  }
+  
 }
 
 export default new AttendanceRepository();
