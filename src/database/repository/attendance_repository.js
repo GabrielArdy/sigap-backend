@@ -379,14 +379,11 @@ class AttendanceRepository {
    * @param {Date} date - The date to count check-outs for (defaults to current date)
    * @returns {Promise<Number>} Count of check-outs for the day
    */
-  async CountTodayCheckOut(date = new Date()) {
+  async countTodayCheckOut(date = new Date()) {
     try {
       // Create start and end of the day to cover the full day
-      const startOfDay = new Date(date);
-      startOfDay.setHours(0, 0, 0, 0);
-      
-      const endOfDay = new Date(date);
-      endOfDay.setHours(23, 59, 59, 999);
+      const today = new Date(date);
+      today.setHours(0, 0, 0, 0);
       
       // Epoch time reference (1970-01-01)
       const epochTime = new Date(0);
@@ -394,9 +391,9 @@ class AttendanceRepository {
       // Count attendance records with valid checkout times
       const checkOutCount = await Attendance.countDocuments({
         date: {
-          $eq: startOfDay
+          $eq: today // Equal to today's date
         },
-        checkOutTime: { 
+        checkOut: { 
           $ne: epochTime // Not equal to epoch time (1970-01-01)
         }
       });

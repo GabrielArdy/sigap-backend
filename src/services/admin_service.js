@@ -10,7 +10,7 @@ class AdminService {
         try {
             const totalUsers = await this.userRepository.countUsers();
             const totalTodayCheckIn = await this.attendanceRepository.CountTodayCheckIn();
-            const totalTodayCheckOut = await this.attendanceRepository.CountTodayCheckOut();
+            const totalTodayCheckOut = await this.attendanceRepository.countTodayCheckOut();
             const checkInPercentage = Math.round(totalTodayCheckIn / totalUsers * 100);
             const checkOutPercentage = Math.round(totalTodayCheckOut / totalUsers * 100);
             const recentActivities = await this._getRecentActivity();
