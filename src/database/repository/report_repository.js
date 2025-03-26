@@ -1,4 +1,4 @@
-import ReportInfo from "../models/report";
+import ReportInfo from "../models/report.js";
 
 class ReportRepository {
     async CreateandUpdateReportInfo(reportData) {
