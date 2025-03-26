@@ -11,8 +11,8 @@ class AdminService {
             const totalUsers = await this.userRepository.countUsers();
             const totalTodayCheckIn = await this.attendanceRepository.CountTodayCheckIn();
             const totalTodayCheckOut = await this.attendanceRepository.CountTodayCheckOut();
-            const checkInPercentage = totalTodayCheckIn / totalUsers * 100;
-            const checkOutPercentage = totalTodayCheckOut / totalUsers * 100;
+            const checkInPercentage = Math.round(totalTodayCheckIn / totalUsers * 100);
+            const checkOutPercentage = Math.round(totalTodayCheckOut / totalUsers * 100);
             const recentActivities = await this._getRecentActivity();
             
             return {
@@ -39,7 +39,7 @@ class AdminService {
             threeHoursAgo.setHours(threeHoursAgo.getHours() - 3);
             
             // Get all attendance records from the last 3 hours
-            const recentAttendances = await attendance_repository.getAllAttendance({
+            const recentAttendances = await attendance_repository.findAll({
                 updatedAt: { $gte: threeHoursAgo }
             });
             
@@ -53,7 +53,7 @@ class AdminService {
                                   attendance.checkOut.toISOString() === '1970-01-01T00:00:00.000Z');
                 
                 return {
-                    fullName: user ? user.fullName : 'Unknown User',
+                    fullName: user ? `${user.firstName} ${user.lastName}` : 'Unknown User',
                     type: isCheckIn ? 'CheckIn' : 'CheckOut',
                     timestamp: attendance.updatedAt
                 };
