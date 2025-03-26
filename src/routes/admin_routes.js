@@ -10,4 +10,11 @@ const router = express.Router();
  */
 router.get('/dashboard', AdminController.getAllDashboardData);
 
+/**
+ * @route GET /api/admin/report
+ * @desc Get all report data
+ * @access Private
+ */
+router.get('/report', AdminController.getMonthlyReport);
+
 export default router;

@@ -64,7 +64,7 @@ class UserRepository {
    */
   async findAll(filter = {}, options = {}) {
     try {
-      const { limit = 10, skip = 0, sort = { createdAt: -1 } } = options;
+      const { limit = 100, skip = 0, sort = { createdAt: -1 } } = options;
       
       return await this.collection.find(filter)
         .sort(sort)

@@ -34,6 +34,104 @@ class AdminService {
         }
     }
 
+    async getAttendanceMonthlyReport(month, year) {
+        try {
+            // Validate month and year parameters
+            const currentDate = new Date();
+            const targetMonth = month ? parseInt(month) : currentDate.getMonth() + 1; // Default to current month
+            const targetYear = year ? parseInt(year) : currentDate.getFullYear(); // Default to current year
+
+            // Input validation - month should be 1-12
+            if (targetMonth < 1 || targetMonth > 12) {
+                throw new Error('Invalid month. Month must be between 1 and 12.');
+            }
+
+            // Get all users
+            const users = await this.userRepository.findAll();
+            
+            // Create report data for each user
+            const reportData = await Promise.all(users.map(async (user) => {
+                // Get all attendance records for this user
+                let attendanceRecords = [];
+                try {
+                    attendanceRecords = await this.attendanceRepository.findByUserId(user.userId);
+                } catch (error) {
+                    console.error(`Error fetching attendance for user ${user.userId}:`, error);
+                    // Continue with empty records rather than failing the whole report
+                }
+                
+                // Filter records for the specified month and year
+                const filteredRecords = attendanceRecords.filter(record => {
+                    if (!record.date) return false;
+                    
+                    const recordDate = new Date(record.date);
+                    return recordDate.getMonth() + 1 === targetMonth && 
+                           recordDate.getFullYear() === targetYear;
+                });
+                
+                // Format attendance data for the user
+                const attendanceData = filteredRecords.map(record => {
+                    // Get the date portion only for the date field
+                    const recordDate = new Date(record.date);
+                    
+                    // Map status codes to more descriptive names
+                    let statusDescription;
+                    switch(record.attendanceStatus) {
+                        case 'P':
+                            statusDescription = 'Present';
+                            break;
+                        case 'A':
+                            statusDescription = 'Absent';
+                            break;
+                        case 'S':
+                            statusDescription = 'Sick';
+                            break;
+                        case 'L':
+                            statusDescription = 'Leave';
+                            break;
+                        default:
+                            // Fallback logic if attendanceStatus is not set
+                            if (record.checkIn && record.checkIn.getTime() !== new Date(0).getTime()) {
+                                statusDescription = 'Present';
+                                
+                                // If no checkout or default checkout, mark as "Not checked out"
+                                if (!record.checkOut || record.checkOut.getTime() === new Date(0).getTime()) {
+                                    statusDescription = 'Not checked out';
+                                }
+                            } else {
+                                statusDescription = 'Absent';
+                            }
+                    }
+                    
+                    return {
+                        date: recordDate,
+                        checkIn: record.checkIn,
+                        checkOut: record.checkOut,
+                        status: statusDescription
+                    };
+                });
+                
+                // Return formatted data for this user
+                return {
+                    fullName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Unknown User',
+                    nip: user.nip || user.employeeId || 'N/A',
+                    attendanceData: attendanceData
+                };
+            }));
+            
+            return {
+                data: reportData,
+                meta: {
+                    month: targetMonth,
+                    year: targetYear,
+                }
+            };
+        } catch (error) {
+            console.error('Error generating monthly report:', error);
+            throw error;
+        }
+    }
+
     async _getRecentActivity() {
         try {
             // Get the timestamp for 3 hours ago
