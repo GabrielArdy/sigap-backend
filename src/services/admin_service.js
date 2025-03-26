@@ -120,7 +120,7 @@ class AdminService {
             }));
             
             return {
-                data: reportData,
+                attendancesData: reportData,
                 meta: {
                     month: targetMonth,
                     year: targetYear,
