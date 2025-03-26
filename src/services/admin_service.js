@@ -1,12 +1,16 @@
-import user_repository from "../database/repository/user_repository";
-import attendance_repository from "../database/repository/attendance_repository";
+import user_repository from "../database/repository/user_repository.js";
+import attendance_repository from "../database/repository/attendance_repository.js";
 
 class AdminService {
+    constructor() {
+        this.userRepository = user_repository;
+        this.attendanceRepository = attendance_repository;
+    }
     async getAllDashboardData() {
         try {
-            const totalUsers = await user_repository.countUsers();
-            const totalTodayCheckIn = await attendance_repository.CountTodayCheckIn();
-            const totalTodayCheckOut = await attendance_repository.CountTodayCheckOut();
+            const totalUsers = await this.userRepository.countUsers();
+            const totalTodayCheckIn = await this.attendanceRepository.CountTodayCheckIn();
+            const totalTodayCheckOut = await this.attendanceRepository.CountTodayCheckOut();
             const checkInPercentage = totalTodayCheckIn / totalUsers * 100;
             const checkOutPercentage = totalTodayCheckOut / totalUsers * 100;
             const recentActivities = await this._getRecentActivity();

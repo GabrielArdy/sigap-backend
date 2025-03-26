@@ -1,6 +1,5 @@
 import express from 'express';
-import authMiddleware from '../middlewares/auth_middleware';
-import adminController from '../controllers/admin_controller';
+import AdminController from '../controllers/admin_controller.js';
 
 const router = express.Router();
 
@@ -9,6 +8,6 @@ const router = express.Router();
  * @desc Get all dashboard data
  * @access Private
  */
-router.get('/dashboard', adminController.getAllDashboardData);
+router.get('/dashboard', AdminController.getAllDashboardData);
 
 export default router;

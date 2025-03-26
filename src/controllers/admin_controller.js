@@ -1,8 +1,9 @@
- import { AdminService } from "../services/admin_service";
+import AdminService from "../services/admin_service.js";
 
 class AdminController {
     constructor() {
-        this.service = new AdminService();
+        // Remove the 'new' keyword since AdminService is likely already an instance
+        this.service = AdminService;
     }
     
     async getAllDashboardData(req, res) {
