@@ -115,6 +115,7 @@ class AdminService {
                 return {
                     fullName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Unknown User',
                     nip: user.nip || user.employeeId || 'N/A',
+                    position: user.position || 'N/A',
                     attendanceData: attendanceData
                 };
             }));
