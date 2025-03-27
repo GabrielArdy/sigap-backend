@@ -120,6 +120,9 @@ class AdminService {
                 };
             }));
             
+            // Sort the report data by fullName
+            reportData.sort((a, b) => a.fullName.localeCompare(b.fullName));
+            
             return {
                 attendancesData: reportData,
                 meta: {
