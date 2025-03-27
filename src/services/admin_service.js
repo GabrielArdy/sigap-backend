@@ -1,10 +1,11 @@
 import user_repository from "../database/repository/user_repository.js";
 import attendance_repository from "../database/repository/attendance_repository.js";
-
+import auth_repository from "../database/repository/auth_repository.js";
 class AdminService {
     constructor() {
         this.userRepository = user_repository;
         this.attendanceRepository = attendance_repository;
+        this.authRepository = auth_repository;
     }
     async getAllDashboardData() {
         try {
@@ -132,6 +133,39 @@ class AdminService {
             };
         } catch (error) {
             console.error('Error generating monthly report:', error);
+            throw error;
+        }
+    }
+
+    async getAllUserAuthData() {
+        try {
+            const users = await this.userRepository.findAll();
+            
+            // Map user data directly and return the promise array
+            const userAuthDataPromises = users.map(async (user) => {
+                const auth = await this.authRepository.findByUserId(user.userId);
+                return {
+                    userId: user.userId,
+                    fullName: `${user.firstName} ${user.lastName}`,
+                    email: auth ? auth.email : 'No email found',
+                    isAdmin: auth ? auth.isAdmin : false
+                };
+            });
+            
+            // Resolve all promises and return the resulting array
+            return await Promise.all(userAuthDataPromises);
+        } catch (error) {
+            console.error('Error getting user auth data:', error);
+            throw error;
+        }
+    }
+
+    async updateUserAdminAccess(userId, adminStatus) {
+        try {
+            const updatedAuth = await this.authRepository.updateAuth(userId, { isAdmin: adminStatus });
+            return updatedAuth;
+        } catch (error) {
+            console.error('Error updating user admin access:', error);
             throw error;
         }
     }

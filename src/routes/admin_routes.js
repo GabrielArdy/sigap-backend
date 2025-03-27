@@ -17,4 +17,18 @@ router.get('/dashboard', AdminController.getAllDashboardData);
  */
 router.get('/report', AdminController.getMonthlyReport);
 
+/**
+ * @route GET /api/admin/users/access
+ * @desc Get all users access permissions
+ * @access Private
+ */
+router.get('/users/access', AdminController.getAllUsersAccessPermissions);
+
+/**
+ * @route PUT /api/admin/users/access
+ * @desc Update user access permissions
+ * @access Private
+ */
+router.put('/users/access', AdminController.updateUserAccessPermissions);
+
 export default router;
