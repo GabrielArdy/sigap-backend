@@ -579,8 +579,8 @@ class AttendanceController {
       const distance = calculateDistanceInMeters(
         location.latitude,
         location.longitude,
-        station.stationLocation.latitude,  // Use latitude directly
-        station.stationLocation.longitude  // Use longitude directly
+        station.stationLocation.latitude,
+        station.stationLocation.longitude
       );
 
       // Use the station's radiusThreshold instead of hardcoded value
@@ -590,6 +590,28 @@ class AttendanceController {
           success: false,
           message: `You are too far from the check-in station (${Math.round(distance)}m away, max allowed: ${maxAllowedDistance}m)`
         });
+      }
+
+      // Check if there's an existing attendance record for today
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const attendanceRecords = await attendanceService.getTodayAttendance(userId);
+      
+      // If there's an existing attendance record with a check-in time
+      if (attendanceRecords && attendanceRecords.checkIn) {
+        const existingCheckInTime = new Date(attendanceRecords.checkIn);
+        const newCheckInTime = new Date(scannedAt);
+        
+        // If the new scan time is more recent than the existing check-in time, 
+        // return success without updating the document
+        if (newCheckInTime > existingCheckInTime) {
+          return res.status(200).json({
+            success: true,
+            message: 'You have already checked in earlier today',
+            data: attendanceRecords
+          });
+        }
       }
 
       // Record check-in with the validated scannedAt time
