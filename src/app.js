@@ -13,6 +13,7 @@ import QRRoutes from './routes/qr_routes.js';
 import userRoutes from './routes/user_routes.js';
 import adminRoutes from './routes/admin_routes.js';
 import reportRoutes from './routes/report_routes.js';
+import leaveRequestRoutes from './routes/leave_routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -70,6 +71,8 @@ app.use('/api/stations', stationRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/report', reportRoutes);
+app.use('/api/leaves', leaveRequestRoutes);
+
 
 // Error handling middleware
 app.use((req, res, next) => {
