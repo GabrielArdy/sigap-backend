@@ -95,10 +95,14 @@ class LeaveRequestController {
     async updateStatusOpen(req, res) {
         try {
             const { requestId } = req.params;
-            const { isOpen } = req.body;
+            const { isOpen, userId } = req.body;
             
             if (isOpen === undefined) {
                 return res.status(400).json({ success: false, message: "isOpen status is required" });
+            }
+            
+            if (!userId) {
+                return res.status(400).json({ success: false, message: "User ID is required" });
             }
             
             // Find the request first to check if it exists
@@ -107,7 +111,11 @@ class LeaveRequestController {
                 return res.status(404).json({ success: false, message: "Leave request not found" });
             }
             
-            const updatedRequest = await leaveRequestService.updateLeaveRequest(requestId, { isOpen });
+            // Update both isOpen status and approverId
+            const updatedRequest = await leaveRequestService.updateLeaveRequest(requestId, { 
+                isOpen,
+                approverId: userId 
+            });
             
             return res.status(200).json({
                 success: true,
