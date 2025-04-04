@@ -1,6 +1,7 @@
 import leaveRequestService from "../services/request_leave_service.js";
 import constant from "../utils/constant.js";
 import { v4 as uuidv4 } from 'uuid'; // Assuming you're using uuid for ID generation
+import userRepository from "../database/repository/user_repository.js";
 
 class LeaveRequestController {
     async createRequestLeave(req, res) {
@@ -368,6 +369,55 @@ class LeaveRequestController {
             return res.status(500).json({
                 success: false,
                 message: "Failed to delete leave request",
+                error: error.message
+            });
+        }
+    }
+
+    async getLeaveRequestsList(req, res) {
+        try {
+            const { page = 1, limit = 10, sortBy = 'requestedAt', sortOrder = 'desc' } = req.query;
+            
+            // Build sort object
+            const sort = {};
+            sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+            
+            const options = {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                sort
+            };
+            
+            // Get all leave requests
+            const requests = await leaveRequestService.getLeaveRequests({}, options);
+            
+            // Map through the requests and add user information
+            const enrichedRequests = await Promise.all(requests.data.map(async (request) => {
+                // Get user details from repository
+                const user = await userRepository.findById(request.requesterId);
+                
+                // Create fullName from firstName and lastName
+                const fullName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Unknown User';
+                
+                // Return only the required fields
+                return {
+                    requestId: request.requestId,
+                    fullName,
+                    requestType: request.requestType,
+                    requestedAt: request.requestedAt
+                };
+            }));
+            
+            return res.status(200).json({
+                success: true,
+                data: enrichedRequests,
+                pagination: requests.pagination
+            });
+        } catch (error) {
+            console.error("Get leave requests list error:", error);
+            return res.status(500).json({
+                success: false,
+                message: "Failed to fetch leave requests list",
                 error: error.message
             });
         }

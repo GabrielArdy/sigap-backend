@@ -9,6 +9,9 @@ router.post('/requests', leaveRequestController.createRequestLeave);
 // Get all leave requests with optional filtering
 router.get('/requests', leaveRequestController.getAllRequestLeave);
 
+// Get dashboard list of leave requests
+router.get('/requests/list', leaveRequestController.getLeaveRequestsList);
+
 // Get leave request by ID
 router.get('/requests/:requestId', leaveRequestController.getRequestLeaveByRequestId);
 
