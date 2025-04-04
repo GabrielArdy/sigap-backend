@@ -246,9 +246,9 @@ class LeaveRequestController {
     async approveOrRejectLeaveRequest(req, res) {
         try {
             const { requestId } = req.params;
-            const { aprovalStatus, approverComment, userId } = req.body;
+            const { aprovalStatus, approverComment, approverId } = req.body;
             
-            if (!requestId || !aprovalStatus || !userId) {
+            if (!requestId || !aprovalStatus || !approverId) {
                 return res.status(400).json({ 
                     success: false, 
                     message: "Request ID, approval status, and user ID are required" 
@@ -266,9 +266,8 @@ class LeaveRequestController {
             const updateData = {
                 aprovalStatus,
                 approverComment,
-                userId, // Required for attendance record if approved
+                approverId, // Required for attendance record if approved
                 updatedAt: new Date(),
-                isOpen: false // Close the request after approval/rejection
             };
             
             const updatedRequest = await leaveRequestService.updateLeaveRequest(requestId, updateData);

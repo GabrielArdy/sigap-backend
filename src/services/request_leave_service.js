@@ -29,9 +29,6 @@ class LeaveRequestService {
 
     async updateLeaveRequest(requestId, updateData) {
         try {
-            let currentDate = new Date();
-            const today = currentDate.setHours(0, 0, 0, 0);
-            
             // Check if request exists before doing anything
             const requestFind = await this.leaveRequestRepository.findByRequestId(requestId);
             if (!requestFind) {
@@ -48,18 +45,34 @@ class LeaveRequestService {
                     attendanceStatus = 'S';
                 }
                 
-                const newAttendanceData = {
-                    userId: updateData.userId,
-                    date: today,
-                    checkIn: new Date(0), // Unix epoch (January 1, 1970, 00:00:00 GMT)
-                    checkOut: new Date(0), // Unix epoch (January 1, 1970, 00:00:00 GMT)
-                    attendanceStatus: attendanceStatus, // Set status based on request type
-                    stationId: "-",
-                };
-                await this.attendanceService.recordAttendance(newAttendanceData);
+                // Get the start and end dates from the request
+                const startDate = new Date(requestFind.requestedStartDate);
+                const endDate = new Date(requestFind.requestedEndDate);
+                startDate.setHours(0, 0, 0, 0);
+                endDate.setHours(0, 0, 0, 0);
+                
+                // Calculate the number of days in the range
+                const dayDifference = Math.floor((endDate - startDate) / (24 * 60 * 60 * 1000)) + 1;
+                
+                // Create attendance records for each day in the range
+                for (let i = 0; i < dayDifference; i++) {
+                    const currentDate = new Date(startDate);
+                    currentDate.setDate(startDate.getDate() + i);
+                    
+                    const newAttendanceData = {
+                        userId: requestFind.requesterId, // Use requesterId from the leave request
+                        date: currentDate,
+                        checkIn: new Date(0), // Unix epoch
+                        checkOut: new Date(0), // Unix epoch
+                        attendanceStatus: attendanceStatus, // Set status based on request type
+                        stationId: "-",
+                    };
+                    
+                    await this.attendanceService.recordAttendance(newAttendanceData);
+                }
             }
             
-            // Update the leave request once
+            // Update the leave request
             const updatedRequest = await this.leaveRequestRepository.updateRequest(requestId, updateData);
             return updatedRequest;
         } catch (error) {
