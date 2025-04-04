@@ -306,9 +306,29 @@ class LeaveRequestController {
             
             const requests = await leaveRequestService.getLeaveRequests(filter, options);
             
+            // Enhance each request with approver details
+            const enhancedRequests = await Promise.all(requests.data.map(async (request) => {
+                // Clone the request object to avoid modifying the original
+                const enhancedRequest = { ...request.toObject() };
+                
+                // Fetch approver details if there is an approverId
+                if (enhancedRequest.approverId && enhancedRequest.approverId !== "-") {
+                    const approver = await userRepository.findById(enhancedRequest.approverId);
+                    if (approver) {
+                        enhancedRequest.approverName = `${approver.firstName || ''} ${approver.lastName || ''}`.trim();
+                    } else {
+                        enhancedRequest.approverName = 'Unknown Approver';
+                    }
+                } else {
+                    enhancedRequest.approverName = 'Not Assigned';
+                }
+                
+                return enhancedRequest;
+            }));
+            
             return res.status(200).json({
                 success: true,
-                data: requests.data,
+                data: enhancedRequests,
                 pagination: requests.pagination
             });
         } catch (error) {
