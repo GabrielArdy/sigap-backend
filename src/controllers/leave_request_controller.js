@@ -251,7 +251,7 @@ class LeaveRequestController {
             if (!requestId || !aprovalStatus || !approverId) {
                 return res.status(400).json({ 
                     success: false, 
-                    message: "Request ID, approval status, and user ID are required" 
+                    message: "Request ID, approval status, and approver ID are required" 
                 });
             }
             
