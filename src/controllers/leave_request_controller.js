@@ -11,12 +11,11 @@ class LeaveRequestController {
                 requestedStartDate, 
                 requestedEndDate, 
                 description, 
-                attachment, 
-                approverId 
+                attachment,
             } = req.body;
             
             // Validate required fields
-            if (!requestType || !requesterId || !requestedStartDate || !requestedEndDate || !description || !approverId) {
+            if (!requestType || !requesterId || !requestedStartDate || !requestedEndDate || !description ) {
                 return res.status(400).json({ success: false, message: "Missing required fields" });
             }
             
@@ -28,11 +27,11 @@ class LeaveRequestController {
                 requestedEndDate,
                 description,
                 attachment: attachment || "",
-                approverId,
+                approverId: "-",
                 aprovalStatus: constant.PENDING,
                 requestedAt: new Date(),
                 updatedAt: new Date(),
-                isOpen: true
+                isOpen: false
             };
             
             const newRequest = await leaveRequestService.createLeaveRequest(requestData);
