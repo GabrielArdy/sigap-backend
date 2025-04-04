@@ -39,7 +39,7 @@ const leaveRequestSchema = new Schema({
         type: Date,
         default: Date.now,
     },
-    aprovalStatus: {
+    approvalStatus: {
         type: String,
         enum: [constant.PENDING, constant.APPROVED, constant.REJECTED],
         default: constant.PENDING,
