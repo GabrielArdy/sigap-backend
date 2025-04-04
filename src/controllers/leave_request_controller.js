@@ -146,9 +146,22 @@ class LeaveRequestController {
                 return res.status(404).json({ success: false, message: "Leave request not found" });
             }
             
+            // Get user details from repository
+            const user = await userRepository.findById(request.requesterId);
+            
+            // Create requesterName from firstName and lastName
+            const requesterName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Unknown User';
+            
+            // Create a new response object with requesterName instead of requesterId
+            const responseData = {
+                ...request.toObject(),
+                requesterName,
+                requesterId: undefined // Remove requesterId from response
+            };
+            
             return res.status(200).json({
                 success: true,
-                data: request
+                data: responseData
             });
         } catch (error) {
             console.error("Get leave request error:", error);
