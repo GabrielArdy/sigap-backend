@@ -29,7 +29,7 @@ class LeaveRequestController {
                 description,
                 attachment: attachment || "",
                 approverId: "-",
-                aprovalStatus: constant.PENDING,
+                approvalStatus: constant.PENDING,
                 requestedAt: new Date(),
                 updatedAt: new Date(),
                 isOpen: false
@@ -179,7 +179,7 @@ class LeaveRequestController {
                 requestType, 
                 requesterId, 
                 approverId, 
-                aprovalStatus, 
+                approvalStatus, 
                 isOpen,
                 startDate, 
                 endDate, 
@@ -195,7 +195,7 @@ class LeaveRequestController {
             if (requestType) filter.requestType = requestType;
             if (requesterId) filter.requesterId = requesterId;
             if (approverId) filter.approverId = approverId;
-            if (aprovalStatus) filter.aprovalStatus = aprovalStatus;
+            if (approvalStatus) filter.approvalStatus = approvalStatus;
             if (isOpen !== undefined) filter.isOpen = isOpen === 'true';
             
             // Date range filter
@@ -246,9 +246,9 @@ class LeaveRequestController {
     async approveOrRejectLeaveRequest(req, res) {
         try {
             const { requestId } = req.params;
-            const { aprovalStatus, approverComment, approverId } = req.body;
+            const { approvalStatus, approverComment, approverId } = req.body;
             
-            if (!requestId || !aprovalStatus || !approverId) {
+            if (!requestId || !approvalStatus || !approverId) {
                 return res.status(400).json({ 
                     success: false, 
                     message: "Request ID, approval status, and approver ID are required" 
@@ -256,7 +256,7 @@ class LeaveRequestController {
             }
             
             // Validate approval status
-            if (![constant.APPROVED, constant.REJECTED].includes(aprovalStatus)) {
+            if (![constant.APPROVED, constant.REJECTED].includes(approvalStatus)) {
                 return res.status(400).json({ 
                     success: false, 
                     message: "Invalid approval status. Must be 'APPROVED' or 'REJECTED'" 
@@ -264,7 +264,7 @@ class LeaveRequestController {
             }
             
             const updateData = {
-                aprovalStatus,
+                approvalStatus,
                 approverComment,
                 approverId, // Required for attendance record if approved
                 updatedAt: new Date(),
@@ -274,7 +274,7 @@ class LeaveRequestController {
             
             return res.status(200).json({
                 success: true,
-                message: `Leave request ${aprovalStatus.toLowerCase()} successfully`,
+                message: `Leave request ${approvalStatus.toLowerCase()} successfully`,
                 data: updatedRequest
             });
         } catch (error) {
@@ -343,15 +343,15 @@ class LeaveRequestController {
     async getLeaveRequestsByApprover(req, res) {
         try {
             const { approverId } = req.params;
-            const { aprovalStatus, page = 1, limit = 10 } = req.query;
+            const { approvalStatus, page = 1, limit = 10 } = req.query;
             
             if (!approverId) {
                 return res.status(400).json({ success: false, message: "Approver ID is required" });
             }
             
             const filter = { approverId };
-            if (aprovalStatus) {
-                filter.aprovalStatus = aprovalStatus;
+            if (approvalStatus) {
+                filter.approvalStatus = approvalStatus;
             }
             
             const options = {

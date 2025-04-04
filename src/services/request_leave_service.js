@@ -39,9 +39,9 @@ class LeaveRequestService {
                 // Map request type to attendance status
                 let attendanceStatus = 'A'; // Default status
                 
-                if (requestFind.requestType === "Leave") {
+                if (requestFind.requestType === "leave") {
                     attendanceStatus = 'L';
-                } else if (requestFind.requestType === "Sick") {
+                } else if (requestFind.requestType === "sick") {
                     attendanceStatus = 'S';
                 }
                 
