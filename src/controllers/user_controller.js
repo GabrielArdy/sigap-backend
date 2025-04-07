@@ -83,6 +83,13 @@ class UserController {
       }
 
       const result = await userService.deleteUser(userId);
+      const authResult = await userService.deleteAuth(userId);
+      if (!result || !authResult) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found or already deleted'
+        });
+      }
       return res.status(200).json(result);
     } catch (error) {
       return res.status(error.message === 'User not found' ? 404 : 500).json({
