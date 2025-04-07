@@ -364,6 +364,9 @@ class AttendanceRepository {
         date: {
           $gte: startOfDay,
           $lte: endOfDay
+        },
+        checkIn: {
+          $ne: new Date(0) // Not equal to default/epoch time
         }
       });
       
