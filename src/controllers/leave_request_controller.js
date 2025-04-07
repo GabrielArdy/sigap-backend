@@ -436,7 +436,8 @@ class LeaveRequestController {
                     requestId: request.requestId,
                     fullName,
                     requestType: request.requestType,
-                    requestedAt: request.requestedAt
+                    requestedAt: request.requestedAt,
+                    isOpen: request.isOpen,
                 };
             }));
             
