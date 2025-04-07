@@ -437,6 +437,7 @@ class LeaveRequestController {
                     fullName,
                     requestType: request.requestType,
                     requestedAt: request.requestedAt,
+                    approvalStatus: request.approvalStatus,
                     isOpen: request.isOpen,
                 };
             }));
