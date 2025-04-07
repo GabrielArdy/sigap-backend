@@ -1,3 +1,4 @@
+import auth_repository from '../database/repository/auth_repository.js';
 import userService from '../services/user_service.js';
 
 /**
@@ -83,7 +84,7 @@ class UserController {
       }
 
       const result = await userService.deleteUser(userId);
-      const authResult = await userService.deleteAuth(userId);
+      const authResult = await auth_repository.deleteAuth(userId);
       if (!result || !authResult) {
         return res.status(404).json({
           success: false,
